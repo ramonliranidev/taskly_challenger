@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-8976cdc4-1f7f-43bb-bcbd-7fb6556a3c5c/styles.css">
+<script src="_ds/modernist-8976cdc4-1f7f-43bb-bcbd-7fb6556a3c5c/_ds_bundle.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; }
+  input[type="checkbox"] { accent-color: var(--color-accent); }
+</style>
+</helmet>
+<div style="min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; background: var(--color-bg); font-family: var(--font-body); color: var(--color-text)">
+
+  <div style="background: var(--color-accent); color: var(--color-bg); padding: 56px 48px; display: flex; flex-direction: column; justify-content: space-between; border-right: 2px solid var(--color-text)">
+    <div style="display: flex; align-items: baseline; gap: 12px">
+      <span style="font-family: var(--font-heading); font-weight: 800; font-size: 26px; letter-spacing: -0.02em">TASKLY</span>
+      <span style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.8">Gestão de tarefas</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 28px; max-width: 460px">
+      <h1 style="margin: 0; font-size: 64px; line-height: 0.94; letter-spacing: -0.035em; text-wrap: pretty">O trabalho do dia, em ordem.</h1>
+      <div style="height: 2px; background: var(--color-bg); opacity: 0.5"></div>
+      <p style="margin: 0; font-size: 16px; line-height: 1.5; max-width: 380px; opacity: 0.92">Uma lista por projeto, um prazo por tarefa. Entre e continue de onde parou.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 2px solid var(--color-bg)">
+      <div style="padding: 16px 16px 0 0">
+        <div style="font-family: var(--font-heading); font-weight: 800; font-size: 28px">12k</div>
+        <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85">Equipes</div>
+      </div>
+      <div style="padding: 16px 16px 0; border-left: 2px solid var(--color-bg)">
+        <div style="font-family: var(--font-heading); font-weight: 800; font-size: 28px">98%</div>
+        <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85">No prazo</div>
+      </div>
+      <div style="padding: 16px 0 0 16px; border-left: 2px solid var(--color-bg)">
+        <div style="font-family: var(--font-heading); font-weight: 800; font-size: 28px">24/7</div>
+        <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85">Sincronizado</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: flex-start; padding: 56px 64px">
+    <div style="width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 32px">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--color-text)">
+        <button onClick="{{ goLogin }}" style="{{ tabLoginStyle }}">Entrar</button>
+        <button onClick="{{ goSignup }}" style="{{ tabSignupStyle }}">Criar conta</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-neutral-700)">{{ kicker }}</span>
+        <h2 style="margin: 0; font-size: 38px; line-height: 1.02; letter-spacing: -0.03em">{{ heading }}</h2>
+      </div>
+
+      <div style="height: 2px; background: var(--color-divider)"></div>
+
+      <form onSubmit="{{ onSubmit }}" style="display: flex; flex-direction: column; gap: 20px">
+        <div class="field">
+          <label for="email" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">E-mail</label>
+          <input class="input" id="email" type="email" required="{{ true }}" placeholder="voce@empresa.com" style="min-height: 48px; padding: 12px 14px; font-size: 15px; border-width: 2px" />
+        </div>
+
+        <div class="field">
+          <label for="senha" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Senha</label>
+          <div style="display: flex; border: 2px solid var(--color-divider); background: var(--color-neutral-100)">
+            <input class="input" id="senha" type="{{ pwType }}" required="{{ true }}" placeholder="••••••••" style="min-height: 48px; padding: 12px 14px; font-size: 15px; border: 0; background: transparent" />
+            <button type="button" onClick="{{ toggleShow }}" style="flex: 0 0 auto; padding: 0 14px; border: 0; border-left: 2px solid var(--color-divider); background: transparent; font: inherit; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent-700); cursor: pointer">{{ showLabel }}</button>
+          </div>
+        </div>
+
+        <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ true }}">
+          <div class="field">
+            <label for="senha2" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Repetir senha</label>
+            <input class="input" id="senha2" type="{{ pwType }}" required="{{ true }}" placeholder="••••••••" style="min-height: 48px; padding: 12px 14px; font-size: 15px; border-width: 2px" />
+            <p style="margin: 8px 0 0; font-size: 12px; color: var(--color-neutral-700)">Mínimo de 8 caracteres.</p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer">
+              <input type="checkbox" style="width: 16px; height: 16px" />
+              Manter conectado
+            </label>
+            <a href="#" style="font-size: 13px; color: var(--color-accent-700); text-decoration: none; border-bottom: 2px solid var(--color-accent)">Esqueci a senha</a>
+          </div>
+        </sc-if>
+
+        <button type="submit" class="btn btn-primary btn-block" style="min-height: 52px; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; padding-inline: 18px; margin-top: 4px">{{ cta }}</button>
+      </form>
+
+      <div style="height: 2px; background: var(--color-divider)"></div>
+
+      <p style="margin: 0; font-size: 13px; color: var(--color-neutral-700)">
+        {{ switchText }}
+        <a href="#" onClick="{{ switchTab }}" style="color: var(--color-accent-700); text-decoration: none; border-bottom: 2px solid var(--color-accent)">{{ switchLink }}</a>
+      </p>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;signup&quot;],&quot;default&quot;:&quot;login&quot;,&quot;tsType&quot;:&quot;'login' | 'signup'&quot;,&quot;section&quot;:&quot;Tela&quot;}}">
+class Component extends DCLogic {
+  state = { tab: null, show: false };
+
+  get tab() { return this.state.tab ?? (this.props.startTab ?? "login"); }
+
+  tabStyle(active) {
+    return {
+      padding: "14px 18px",
+      font: "inherit",
+      fontFamily: "var(--font-heading)",
+      fontWeight: 800,
+      fontSize: "13px",
+      letterSpacing: "0.14em",
+      textTransform: "uppercase",
+      textAlign: "left",
+      cursor: "pointer",
+      border: 0,
+      background: active ? "var(--color-text)" : "transparent",
+      color: active ? "var(--color-bg)" : "var(--color-text)"
+    };
+  }
+
+  renderVals() {
+    const isSignup = this.tab === "signup";
+    const set = (tab) => (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ tab }); };
+    return {
+      isSignup,
+      isLogin: !isSignup,
+      tabLoginStyle: this.tabStyle(!isSignup),
+      tabSignupStyle: this.tabStyle(isSignup),
+      goLogin: set("login"),
+      goSignup: set("signup"),
+      switchTab: set(isSignup ? "login" : "signup"),
+      kicker: isSignup ? "Nova conta" : "Bem-vindo de volta",
+      heading: isSignup ? "Criar sua conta" : "Entrar no Taskly",
+      cta: isSignup ? "Criar conta" : "Entrar",
+      switchText: isSignup ? "Já tem uma conta?" : "Ainda não tem conta?",
+      switchLink: isSignup ? "Entrar" : "Criar conta",
+      pwType: this.state.show ? "text" : "password",
+      showLabel: this.state.show ? "Ocultar" : "Mostrar",
+      toggleShow: () => this.setState((s) => ({ show: !s.show })),
+      onSubmit: (e) => e.preventDefault()
+    };
+  }
+}
+</script>
+</body>
+</html>
