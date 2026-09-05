@@ -26,7 +26,7 @@ export const routes: Routes = [
     path: 'projetos',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/projects/projects.component').then((m) => m.ProjectsComponent),
+      import('./features/workspace/workspace.component').then((m) => m.WorkspaceComponent),
   },
   { path: '**', redirectTo: 'login' },
 ];
