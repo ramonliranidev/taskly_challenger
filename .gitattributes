@@ -1,0 +1,21 @@
+# Normaliza finais de linha: no repositório sempre LF, evitando diffs
+# fantasma quando o projeto é clonado em Windows/WSL.
+* text=auto eol=lf
+
+# Arquivos binários — nunca converter.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+
+# Scripts que precisam de CRLF/LF específicos.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.sh text eol=lf
