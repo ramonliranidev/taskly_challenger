@@ -12,6 +12,8 @@ Sistema web de gestão de tarefas pessoais — desafio técnico para a vaga de D
 
 ## Como rodar o projeto
 
+### Avaliação (tudo via Docker)
+
 Pré-requisitos: Docker e Docker Compose instalados.
 
 ```bash
@@ -28,6 +30,24 @@ docker compose up --build
 - Banco de dados: localhost:5432
 
 > Na primeira execução, o container do backend roda as migrations automaticamente.
+
+### Desenvolvimento
+
+O backend (PHP/Postgres) roda em container; o frontend roda local para
+recompilação rápida.
+
+```bash
+# 1. Banco + API em container
+docker compose run --rm backend composer require laravel/sanctum:^4.2   # só na 1ª vez (sincroniza o lockfile)
+docker compose up -d db backend
+
+# 2. Frontend local
+cd frontend
+npm install
+npm start        # http://localhost:4200
+```
+
+Detalhes e troubleshooting em [frontend/README.md](./frontend/README.md).
 
 ## Estrutura do repositório
 
