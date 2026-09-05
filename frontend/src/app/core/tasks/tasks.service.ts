@@ -70,7 +70,11 @@ export class TasksService {
         this._tasks.set([]);
         return;
       }
-      this.loadForProject(projectId).subscribe();
+      // error: () => void 0 — fire-and-forget, mesmo padrão do
+      // AuthService.logout(). Uma reexecução deste efeito bem no momento
+      // do logout/troca de rota pode chegar a disparar esta chamada com o
+      // token já limpo (401); não há nada a fazer além de ignorar.
+      this.loadForProject(projectId).subscribe({ error: () => void 0 });
     });
   }
 

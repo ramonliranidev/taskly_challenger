@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { LucidePlus } from '@lucide/angular';
 
+import { AuthService } from '../../../core/auth/auth.service';
 import { Project } from '../../../core/projects/project.models';
 import { ProjectsService } from '../../../core/projects/projects.service';
 import { TasksService } from '../../../core/tasks/tasks.service';
@@ -8,7 +10,10 @@ import { PromptDialogComponent } from '../../../shared/ui/dialog/prompt-dialog.c
 import { ProjectListItemComponent } from './project-list-item.component';
 
 /** Sidebar de projetos (240px, README §2) — lista, criar/renomear (via
- * `<dialog>` nativo, substitui `window.prompt`) e o rodapé de progresso. */
+ * `<dialog>` nativo, substitui `window.prompt`), o rodapé de progresso e a
+ * conta do usuário logado. Rola de forma independente da área de conteúdo
+ * (`overflow-y-auto` — ver WorkspaceComponent), então o bloco de
+ * conta/Desconectar (fixado na base via `mt-auto`) sempre fica visível. */
 @Component({
   selector: 'app-project-sidebar',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,7 +22,7 @@ import { ProjectListItemComponent } from './project-list-item.component';
   host: { class: 'contents' },
   imports: [ProjectListItemComponent, PromptDialogComponent, LucidePlus],
   template: `
-    <aside class="flex h-full flex-col border-r-2 border-ink">
+    <aside class="flex h-full flex-col overflow-y-auto border-r-2 border-ink">
       <div class="flex items-center justify-between gap-2 pt-5 pr-6 pb-3 pl-6">
         <span class="text-[11px] tracking-[0.18em] text-muted uppercase">Projetos</span>
         <span class="text-[11px] font-extrabold text-muted">{{ projects.projects().length }}</span>
@@ -50,21 +55,49 @@ import { ProjectListItemComponent } from './project-list-item.component';
         </span>
         <span class="text-[12px] text-muted">tarefas concluídas</span>
       </div>
+
+      <div class="flex flex-col border-t-2 border-ink">
+        <div class="flex items-center gap-2.5 pt-3.5 pr-6 pb-3 pl-6">
+          <span
+            class="flex size-7 flex-none items-center justify-center bg-ink text-[11px] font-extrabold text-bg"
+          >
+            {{ initials() }}
+          </span>
+          <div class="flex min-w-0 flex-col gap-px">
+            <span class="text-[10px] tracking-[0.16em] text-muted uppercase">Conectado</span>
+            <span class="truncate text-[12px] font-semibold" [title]="email()">{{ email() }}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="w-full border-t-2 border-ink/40 px-6 py-3 text-left text-[11px] font-semibold tracking-[0.14em] text-muted uppercase hover:bg-accent hover:text-bg"
+          (click)="openLogoutDialog()"
+        >
+          Desconectar
+        </button>
+      </div>
     </aside>
 
-    <app-prompt-dialog (confirmed)="onDialogConfirmed($event)" />
+    <app-prompt-dialog #projectDialog (confirmed)="onDialogConfirmed($event)" />
+    <app-prompt-dialog #logoutDialog (confirmed)="onLogoutConfirmed()" />
   `,
 })
 export class ProjectSidebarComponent {
   protected readonly projects = inject(ProjectsService);
   protected readonly tasks = inject(TasksService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
-  private readonly dialog = viewChild.required(PromptDialogComponent);
+  private readonly projectDialog = viewChild.required<PromptDialogComponent>('projectDialog');
+  private readonly logoutDialog = viewChild.required<PromptDialogComponent>('logoutDialog');
   private renamingProjectId: number | null = null;
+
+  protected readonly email = computed(() => this.auth.user()?.email ?? '');
+  protected readonly initials = computed(() => this.email().slice(0, 2).toUpperCase());
 
   protected openCreate(): void {
     this.renamingProjectId = null;
-    this.dialog().open({
+    this.projectDialog().open({
       title: 'Novo projeto',
       confirmLabel: 'Criar',
       placeholder: 'Nome do projeto',
@@ -73,7 +106,7 @@ export class ProjectSidebarComponent {
 
   protected openRename(project: Project): void {
     this.renamingProjectId = project.id;
-    this.dialog().open({
+    this.projectDialog().open({
       title: 'Renomear projeto',
       confirmLabel: 'Salvar',
       initialValue: project.name,
@@ -89,5 +122,20 @@ export class ProjectSidebarComponent {
     } else {
       this.projects.create(name).subscribe();
     }
+  }
+
+  protected openLogoutDialog(): void {
+    this.logoutDialog().open({
+      title: 'Sair da conta?',
+      showInput: false,
+      confirmLabel: 'Sair',
+    });
+  }
+
+  protected onLogoutConfirmed(): void {
+    setTimeout(() => {
+      this.auth.logout();
+      void this.router.navigateByUrl('/login');
+    });
   }
 }
