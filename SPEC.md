@@ -3,10 +3,10 @@
 ## 1. Escopo
 
 - [x] Autenticação própria (cadastro, login, sessão persistente)
-- [ ] CRUD de Projetos
-- [ ] CRUD de Tarefas (título, descrição curta, descrição completa, prazo, tags, anexos/fotos)
-- [ ] Alternância de visualização Lista / Kanban
-- [ ] Status de tarefa: Não iniciada, Em andamento, Concluída, Cancelada
+- [x] CRUD de Projetos
+- [x] CRUD de Tarefas (título, descrição curta, descrição completa, prazo, tags, anexos/fotos)
+- [x] Alternância de visualização Lista / Kanban
+- [x] Status de tarefa: Não iniciada, Em andamento, Concluída, Cancelada
 
 ## 2. Modelagem de dados
 
@@ -36,10 +36,29 @@
 | due_date | timestamp | data e hora |
 | status | enum | not_started, in_progress, done, cancelled |
 
-### tags / task_tag (N:N)
-### attachments (1:N com tasks)
+### tags
+| campo | tipo | observação |
+|---|---|---|
+| id | bigint | |
+| user_id | FK -> users | dono da tag (reaproveitada entre projetos/tarefas do mesmo usuário) |
+| name | string | único por usuário |
 
-> Preencher/ajustar conforme a implementação avançar.
+### task_tag (N:N)
+| campo | tipo | observação |
+|---|---|---|
+| task_id | FK -> tasks | chave primária composta com tag_id |
+| tag_id | FK -> tags | |
+
+### attachments (1:N com tasks)
+| campo | tipo | observação |
+|---|---|---|
+| id | bigint | |
+| task_id | FK -> tasks | |
+| disk | string | disco do Laravel (`public`) |
+| path | string | caminho no disco |
+| original_name | string | nome original do arquivo |
+| mime_type | string | |
+| size | bigint | bytes (formatação para exibição é responsabilidade do frontend) |
 
 ## 3. Decisões de arquitetura
 
@@ -50,8 +69,14 @@
 - **Autenticação:** Laravel Sanctum com tokens Bearer (`personal_access_tokens`) para consumo pela SPA Angular. Endpoints: `POST /api/register`, `POST /api/login`, `POST /api/logout`, `GET /api/me`. No frontend, o token e o usuário são persistidos em `localStorage` (sessão sobrevive a refresh) e injetados via HTTP interceptor.
 - **Comunicação Front/Back:** API REST em JSON. Base do frontend em `environment.apiUrl` (`http://localhost:8000/api`).
 - **Estilização do frontend:** Tailwind CSS v4 (via `@tailwindcss/postcss`), com os tokens do design system "Modernist" registrados em `@theme` (`src/styles.css`).
-- _(adicionar demais decisões conforme forem tomadas: upload de anexos, kanban drag-and-drop, etc.)_
+- **CRUD de Projetos/Tarefas:** endpoints REST (`/api/projects`, `/api/projects/{id}/tasks`, `/api/tasks/{id}`, `/api/tasks/{id}/attachments`, `/api/attachments/{id}`, `/api/tags`), sempre escopados ao usuário autenticado via `ProjectPolicy`/`TaskPolicy`/`AttachmentPolicy`. `status` é um PHP enum backed (`App\Enums\TaskStatus`); a tradução para pt-BR (`Não iniciada`/`Em andamento`/...) é só do frontend.
+- **Tags:** globais por usuário (não por projeto), find-or-create por nome ao salvar uma tarefa — evita duplicar a mesma tag em cada tarefa.
+- **Anexos:** upload real via disco `public` do Laravel (`php artisan storage:link` no start do container); validação de mime (`png,jpg,jpeg,gif,pdf,doc,docx`) e tamanho (máx. 10MB). Ao excluir uma tarefa/projeto, os arquivos correspondentes também são apagados do disco (a cascata do banco `cascadeOnDelete()` só apaga as linhas, não os arquivos).
+- **Auto-save do painel de edição:** cada campo salva sozinho, sem botão "Salvar" bloqueante — texto/prazo usam debounce (~500ms, acumulando patches por tarefa) para não gerar 1 request por tecla; situação/tags/anexos salvam imediatamente.
+- **Diálogos:** `<dialog>` HTML nativo (sem CDK/Material) para criar/renomear projeto, nova tag e confirmação de exclusão de tarefa.
 
 ## 4. O que foi além do escopo mínimo
 
-_(preencher ao final com o que foi adicionado além do pedido)_
+- Confirmação antes de excluir uma tarefa (o protótipo de design original apagava com um clique só; adicionado por ser uma ação destrutiva e irreversível).
+- Endpoint `GET /api/tags` para autocomplete de tags já usadas pelo usuário.
+- `DELETE /api/projects/{id}` implementado e testado mesmo sem botão correspondente na UI (o design não especifica essa ação na sidebar).

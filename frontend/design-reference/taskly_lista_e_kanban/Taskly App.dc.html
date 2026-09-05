@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-8976cdc4-1f7f-43bb-bcbd-7fb6556a3c5c/styles.css">
+<script src="_ds/modernist-8976cdc4-1f7f-43bb-bcbd-7fb6556a3c5c/_ds_bundle.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; }
+  a { color: var(--color-accent-700); text-decoration: none; }
+  a:hover { color: var(--color-accent); }
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); font-family: var(--font-body); color: var(--color-text)">
+
+  <header style="display: flex; align-items: stretch; justify-content: space-between; border-bottom: 2px solid var(--color-text); background: var(--color-bg)">
+    <div style="display: flex; align-items: center; gap: 18px; padding: 0 24px">
+      <span style="font-family: var(--font-heading); font-weight: 800; font-size: 20px; letter-spacing: -0.02em">TASKLY</span>
+      <span style="width: 2px; height: 20px; background: var(--color-divider)"></span>
+      <span style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-700)">{{ projectName }}</span>
+    </div>
+    <div style="display: flex; align-items: stretch">
+      <div style="display: flex; border-left: 2px solid var(--color-text)">
+        <button onClick="{{ goList }}" style="{{ tabListStyle }}">Lista</button>
+        <button onClick="{{ goKanban }}" style="{{ tabKanbanStyle }}">Kanban</button>
+      </div>
+      <button onClick="{{ newTask }}" class="btn btn-primary" style="border-radius: 0; min-height: 0; padding: 0 22px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; border-left: 2px solid var(--color-text)">Nova tarefa</button>
+    </div>
+  </header>
+
+  <div style="flex: 1; display: grid; grid-template-columns: 240px minmax(0, 1fr); align-items: stretch">
+
+    <aside style="border-right: 2px solid var(--color-text); display: flex; flex-direction: column">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 20px 24px 12px">
+        <span style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-neutral-700)">Projetos</span>
+        <span style="font-family: var(--font-heading); font-weight: 800; font-size: 11px; color: var(--color-neutral-700)">{{ projectCount }}</span>
+      </div>
+      <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
+        <div style="{{ p.rowStyle }}">
+          <button onClick="{{ p.select }}" style="{{ p.style }}">
+            <span>{{ p.name }}</span>
+            <span style="{{ p.countStyle }}">{{ p.count }}</span>
+          </button>
+          <button onClick="{{ p.rename }}" title="Renomear" style="padding: 0 12px; border: 0; background: transparent; font: inherit; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-700); cursor: pointer" style-hover="color: var(--color-accent-700)">Editar</button>
+        </div>
+      </sc-for>
+      <button onClick="{{ newProject }}" style="margin: 16px 24px; padding: 10px 12px; border: 2px solid var(--color-divider); background: transparent; font: inherit; font-family: var(--font-heading); font-weight: 600; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; text-align: left; color: var(--color-accent-700); cursor: pointer" style-hover="border-color: var(--color-accent)">+ Novo projeto</button>
+      <div style="margin-top: auto; padding: 20px 24px; border-top: 2px solid var(--color-divider); display: flex; flex-direction: column; gap: 6px">
+        <div style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-neutral-700)">Neste projeto</div>
+        <div style="font-family: var(--font-heading); font-weight: 800; font-size: 30px; line-height: 1">{{ doneRatio }}</div>
+        <div style="font-size: 12px; color: var(--color-neutral-700)">tarefas concluídas</div>
+      </div>
+    </aside>
+
+    <main style="min-width: 0">
+
+      <div style="min-width: 0">
+        <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; padding: 14px 32px; border-bottom: 2px solid var(--color-divider); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-neutral-700)">
+              <span style="flex: 1 1 260px; min-width: 0">Tarefa</span>
+              <div style="display: flex; gap: 16px; flex: 0 0 auto">
+                <span style="width: 170px">Tags</span>
+                <span style="width: 140px">Situação</span>
+                <span style="width: 90px">Prazo</span>
+              </div>
+            </div>
+            <sc-for list="{{ tasks }}" as="t" hint-placeholder-count="6">
+              <div onClick="{{ t.open }}" style="{{ t.rowStyle }}" style-hover="background: var(--color-neutral-100)">
+                <div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 260px; min-width: 0">
+                  <span style="font-family: var(--font-heading); font-weight: 600; font-size: 16px; letter-spacing: -0.01em">{{ t.title }}</span>
+                  <span style="font-size: 13px; color: var(--color-neutral-700); text-wrap: pretty">{{ t.desc }}</span>
+                  <span style="{{ t.attachStyle }}">{{ t.attachLabel }}</span>
+                </div>
+                <div style="display: flex; gap: 16px; flex: 0 0 auto; align-items: flex-start">
+                  <div style="width: 170px; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start">
+                    <sc-for list="{{ t.tags }}" as="tag" hint-placeholder-count="2">
+                      <span style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 7px; border: 2px solid var(--color-divider); color: var(--color-neutral-700)">{{ tag }}</span>
+                    </sc-for>
+                  </div>
+                  <div style="width: 140px">
+                    <span style="{{ t.statusStyle }}">{{ t.status }}</span>
+                  </div>
+                  <div style="width: 90px; display: flex; flex-direction: column; gap: 2px">
+                    <span style="{{ t.dueStyle }}">{{ t.dueDate }}</span>
+                    <span style="font-size: 11px; letter-spacing: 0.08em; color: var(--color-neutral-700)">{{ t.dueTime }}</span>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+            <button onClick="{{ newTask }}" style="width: 100%; padding: 18px 32px; border: 0; border-bottom: 2px solid var(--color-divider); background: transparent; font: inherit; font-family: var(--font-heading); font-weight: 600; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; text-align: left; color: var(--color-accent-700); cursor: pointer" style-hover="background: var(--color-neutral-100)">+ Nova tarefa</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isKanban }}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 1fr); align-items: stretch; min-height: 100%; overflow-x: auto">
+            <sc-for list="{{ columns }}" as="col" hint-placeholder-count="4">
+              <section style="{{ col.style }}">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 20px; border-bottom: 2px solid var(--color-divider)">
+                  <span style="font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap">{{ col.name }}</span>
+                  <span style="font-family: var(--font-heading); font-weight: 800; font-size: 13px; color: var(--color-neutral-700)">{{ col.count }}</span>
+                </div>
+                <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">
+                  <sc-for list="{{ col.cards }}" as="c" hint-placeholder-count="3">
+                    <article onClick="{{ c.open }}" style="{{ c.cardStyle }}" style-hover="border-color: var(--color-text)">
+                      <span style="font-family: var(--font-heading); font-weight: 600; font-size: 14px; line-height: 1.25; letter-spacing: -0.01em; text-wrap: pretty">{{ c.title }}</span>
+                      <span style="font-size: 12px; line-height: 1.4; color: var(--color-neutral-700); text-wrap: pretty">{{ c.desc }}</span>
+                      <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                        <sc-for list="{{ c.tags }}" as="tag" hint-placeholder-count="2">
+                          <span style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 7px; border: 2px solid var(--color-text)">{{ tag }}</span>
+                        </sc-for>
+                      </div>
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 2px solid var(--color-divider)">
+                        <span style="font-family: var(--font-heading); font-weight: 600; font-size: 11px; letter-spacing: 0.06em; color: var(--color-neutral-700)">{{ c.meta }}</span>
+                        <span style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: var(--color-text); color: var(--color-bg); font-family: var(--font-heading); font-weight: 800; font-size: 10px; letter-spacing: 0.04em">{{ c.who }}</span>
+                      </div>
+                    </article>
+                  </sc-for>
+                  <button onClick="{{ newTask }}" style="padding: 10px 12px; border: 2px dashed var(--color-divider); background: transparent; font: inherit; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; text-align: left; color: var(--color-neutral-700); cursor: pointer" style-hover="color: var(--color-accent-700); border-color: var(--color-accent)">+ Adicionar</button>
+                </div>
+              </section>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ hasDetail }}" hint-placeholder-val="{{ false }}">
+        <aside style="position: fixed; top: 0; right: 0; bottom: 0; z-index: 20; width: min(400px, 92vw); border-left: 2px solid var(--color-text); background: var(--color-bg); display: flex; flex-direction: column; overflow-y: auto; box-shadow: var(--shadow-lg)">
+
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 20px; border-bottom: 2px solid var(--color-text)">
+            <span style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-neutral-700)">Editar tarefa</span>
+            <button onClick="{{ closeDetail }}" style="border: 0; background: transparent; font: inherit; font-family: var(--font-heading); font-weight: 800; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent-700); cursor: pointer">Fechar</button>
+          </div>
+
+          <div style="flex: 1; padding: 24px 20px; display: flex; flex-direction: column; gap: 22px">
+
+            <div class="field">
+              <label for="d-title" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Título</label>
+              <input class="input" id="d-title" value="{{ detail.title }}" onChange="{{ setTitle }}" style="min-height: 44px; padding: 10px 12px; font-family: var(--font-heading); font-weight: 600; font-size: 16px; border-width: 2px" />
+            </div>
+
+            <div class="field">
+              <label for="d-desc" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Descrição curta</label>
+              <input class="input" id="d-desc" value="{{ detail.desc }}" onChange="{{ setDesc }}" style="min-height: 44px; padding: 10px 12px; font-size: 14px; border-width: 2px" />
+            </div>
+
+            <div class="field">
+              <label for="d-full" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Descrição completa</label>
+              <textarea class="input" id="d-full" rows="5" value="{{ detail.full }}" onChange="{{ setFull }}" style="padding: 12px; font-size: 14px; line-height: 1.5; border-width: 2px; resize: vertical"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 120px; gap: 12px">
+              <div class="field">
+                <label for="d-date" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Prazo — data</label>
+                <input class="input" id="d-date" type="date" value="{{ detail.date }}" onChange="{{ setDate }}" style="min-height: 44px; padding: 10px 12px; font-size: 14px; border-width: 2px" />
+              </div>
+              <div class="field">
+                <label for="d-time" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Hora</label>
+                <input class="input" id="d-time" type="time" value="{{ detail.time }}" onChange="{{ setTime }}" style="min-height: 44px; padding: 10px 12px; font-size: 14px; border-width: 2px" />
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Situação</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--color-text)">
+                <sc-for list="{{ statusOptions }}" as="s" hint-placeholder-count="4">
+                  <button onClick="{{ s.select }}" style="{{ s.style }}">{{ s.name }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Tags</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                <sc-for list="{{ detailTags }}" as="tag" hint-placeholder-count="3">
+                  <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 8px; border: 2px solid var(--color-text)">
+                    {{ tag.name }}
+                    <button onClick="{{ tag.remove }}" style="border: 0; background: transparent; font: inherit; font-size: 12px; line-height: 1; color: var(--color-accent-700); cursor: pointer">×</button>
+                  </span>
+                </sc-for>
+                <button onClick="{{ addTag }}" style="font: inherit; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 8px; border: 2px dashed var(--color-divider); background: transparent; color: var(--color-accent-700); cursor: pointer">+ Tag</button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase">Anexos e fotos</span>
+              <div style="display: flex; flex-direction: column; gap: 0; border: 2px solid var(--color-divider)">
+                <sc-for list="{{ detailFiles }}" as="f" hint-placeholder-count="2">
+                  <div style="{{ f.rowStyle }}">
+                    <span style="{{ f.chipStyle }}">{{ f.kind }}</span>
+                    <span style="flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ f.name }}</span>
+                    <span style="font-size: 11px; color: var(--color-neutral-700)">{{ f.size }}</span>
+                    <button onClick="{{ f.remove }}" style="border: 0; background: transparent; font: inherit; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent-700); cursor: pointer">Remover</button>
+                  </div>
+                </sc-for>
+                <button onClick="{{ addFile }}" style="padding: 14px 12px; border: 0; border-top: 2px dashed var(--color-divider); background: transparent; font: inherit; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; text-align: left; color: var(--color-accent-700); cursor: pointer" style-hover="background: var(--color-neutral-100)">+ Anexar arquivo ou foto</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0; border-top: 2px solid var(--color-text)">
+            <button onClick="{{ closeDetail }}" class="btn btn-primary" style="flex: 1; border-radius: 0; min-height: 52px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase">Salvar alterações</button>
+            <button onClick="{{ deleteTask }}" style="flex: 0 0 auto; padding: 0 18px; border: 0; border-left: 2px solid var(--color-text); background: transparent; font: inherit; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-700); cursor: pointer" style-hover="color: var(--color-accent-700)">Excluir</button>
+          </div>
+        </aside>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:860},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;list&quot;,&quot;kanban&quot;],&quot;default&quot;:&quot;list&quot;,&quot;tsType&quot;:&quot;'list' | 'kanban'&quot;,&quot;section&quot;:&quot;Tela&quot;}}">
+const ORDER = ["Não iniciada", "Em andamento", "Concluída", "Cancelada"];
+
+const SEED = {
+  0: [
+    { id: 1, title: "Redesenhar tela de login", desc: "Criar nova proposta de UI para autenticação", full: "Revisar hierarquia do formulário, definir estados de erro e alinhar o painel de marca com o sistema Modernist. Entregar em lista e kanban para validação interna.", date: "2026-06-28", time: "17:00", tags: ["Design", "UI"], status: "Em andamento", who: "MR", files: [{ kind: "PNG", name: "login-v3.png", size: "412 KB" }, { kind: "PDF", name: "briefing-auth.pdf", size: "88 KB" }] },
+    { id: 2, title: "Mapear jornada de onboarding", desc: "Documentar fluxo atual e pontos de atrito", full: "Registrar cada passo do cadastro até a primeira tarefa criada, marcando onde o usuário abandona. Resultado vira base para a v2 do onboarding.", date: "2026-06-30", time: "12:00", tags: ["UX", "Pesquisa"], status: "Não iniciada", who: "AL", files: [] },
+    { id: 3, title: "Validar componentes com dev", desc: "Alinhar tokens de design com time técnico", full: "Conferir se os tokens de cor, tipografia e espaçamento do Modernist estão mapeados no Tailwind do projeto Angular.", date: "2026-06-24", time: "10:30", tags: ["Dev", "Tokens"], status: "Concluída", who: "JP", files: [{ kind: "DOC", name: "tokens.md", size: "12 KB" }] },
+    { id: 4, title: "Revisar textos da tela de cadastro", desc: "Padronizar tom de voz e mensagens de erro", full: "Unificar a linguagem dos rótulos, placeholders e mensagens de validação nas duas telas de autenticação.", date: "2026-07-02", time: "16:00", tags: ["Conteúdo"], status: "Em andamento", who: "CS", files: [] },
+    { id: 5, title: "Testar fluxo em telas pequenas", desc: "Checar quebras a partir de 360px", full: "Percorrer login, cadastro, lista e kanban em 360, 414 e 768px, anotando quebras de grid e alvos de toque abaixo de 44px.", date: "2026-07-01", time: "09:00", tags: ["QA", "Mobile"], status: "Não iniciada", who: "MR", files: [{ kind: "JPG", name: "quebra-360.jpg", size: "240 KB" }] },
+    { id: 6, title: "Definir estados de erro da API", desc: "Listar respostas e mensagens correspondentes", full: "Mapear os códigos de retorno do serviço de autenticação e a mensagem exibida em cada caso.", date: "2026-07-05", time: "14:00", tags: ["Dev", "API"], status: "Não iniciada", who: "JP", files: [] },
+    { id: 7, title: "Preparar handoff para engenharia", desc: "Empacotar tokens, telas e regras de validação", full: "Reunir README, capturas e folha de tokens em um pacote único para o time Angular.", date: "2026-07-03", time: "11:00", tags: ["Design", "Handoff"], status: "Em andamento", who: "AL", files: [{ kind: "ZIP", name: "handoff-auth.zip", size: "1,4 MB" }] },
+    { id: 8, title: "Migrar protótipo antigo", desc: "Descontinuado após revisão de escopo", full: "Versão em Figma não será mantida; o histórico fica arquivado apenas para consulta.", date: "2026-06-20", time: "18:00", tags: ["Ops"], status: "Cancelada", who: "CS", files: [] }
+  ],
+  1: [
+    { id: 11, title: "Definir navegação por abas", desc: "Comparar barra inferior e menu lateral", full: "Prototipar as duas opções e testar com cinco usuários.", date: "2026-07-08", time: "15:00", tags: ["UX", "Mobile"], status: "Em andamento", who: "AL", files: [] },
+    { id: 12, title: "Ícones em tamanho de toque", desc: "Garantir alvos de 44px", full: "Revisar toda a barra de ações do app mobile.", date: "2026-07-09", time: "10:00", tags: ["Design"], status: "Não iniciada", who: "MR", files: [] },
+    { id: 13, title: "Push de lembrete de prazo", desc: "Definir gatilhos e texto da notificação", full: "Disparo 24h e 1h antes do prazo, com opção de silenciar por projeto.", date: "2026-07-04", time: "09:30", tags: ["Dev"], status: "Concluída", who: "JP", files: [] }
+  ],
+  2: [
+    { id: 21, title: "Roteiro do tour inicial", desc: "Três passos até a primeira tarefa", full: "Criar projeto, criar tarefa, alternar para kanban.", date: "2026-07-10", time: "13:00", tags: ["Conteúdo", "UX"], status: "Não iniciada", who: "CS", files: [] },
+    { id: 22, title: "Tela vazia de projeto", desc: "O que mostrar quando não há tarefas", full: "Mensagem curta e ação primária para criar a primeira tarefa.", date: "2026-07-07", time: "16:30", tags: ["Design"], status: "Em andamento", who: "MR", files: [] }
+  ]
+};
+
+const TAG_POOL = ["Design", "UX", "Dev", "QA", "Conteúdo", "Ops", "Urgente", "Revisão"];
+
+class Component extends DCLogic {
+  state = {
+    view: null,
+    project: 0,
+    projects: [
+      { name: "Website redesign" },
+      { name: "App mobile" },
+      { name: "Onboarding v2" }
+    ],
+    tasks: JSON.parse(JSON.stringify(SEED)),
+    openId: null,
+    nextId: 100
+  };
+
+  get view() { return this.state.view ?? (this.props.startView ?? "list"); }
+  get list() { return this.state.tasks[this.state.project] || []; }
+
+  update(id, patch) {
+    this.setState((s) => {
+      const tasks = { ...s.tasks };
+      tasks[s.project] = tasks[s.project].map((t) => (t.id === id ? { ...t, ...patch } : t));
+      return { tasks };
+    });
+  }
+
+  tabStyle(active) {
+    return {
+      padding: "0 22px", font: "inherit", fontFamily: "var(--font-heading)", fontWeight: 800,
+      fontSize: "12px", letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", border: 0,
+      background: active ? "var(--color-text)" : "transparent",
+      color: active ? "var(--color-bg)" : "var(--color-text)"
+    };
+  }
+
+  statusStyle(status) {
+    const base = {
+      justifySelf: "start", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase",
+      padding: "4px 8px", border: "2px solid var(--color-text)",
+      fontFamily: "var(--font-heading)", fontWeight: 600
+    };
+    if (status === "Em andamento") return { ...base, background: "var(--color-accent)", borderColor: "var(--color-accent)", color: "var(--color-bg)" };
+    if (status === "Concluída") return { ...base, background: "var(--color-text)", color: "var(--color-bg)" };
+    if (status === "Cancelada") return { ...base, borderColor: "var(--color-divider)", color: "var(--color-neutral-700)", textDecoration: "line-through" };
+    return { ...base, borderColor: "var(--color-divider)", color: "var(--color-neutral-700)" };
+  }
+
+  fmtDate(iso) {
+    if (!iso) return "—";
+    const [y, m, d] = iso.split("-");
+    return d + "/" + m;
+  }
+
+  renderVals() {
+    const view = this.view;
+    const list = this.list;
+    const openTask = list.find((t) => t.id === this.state.openId) || null;
+    const done = list.filter((t) => t.status === "Concluída").length;
+
+    const decorate = (t) => ({
+      ...t,
+      dueDate: this.fmtDate(t.date),
+      dueTime: t.time || "",
+      statusStyle: this.statusStyle(t.status),
+      open: () => this.setState({ openId: t.id }),
+      attachLabel: t.files.length ? t.files.length + (t.files.length > 1 ? " anexos" : " anexo") : "",
+      attachStyle: {
+        display: t.files.length ? "block" : "none",
+        marginTop: "2px", fontSize: "11px", letterSpacing: "0.12em",
+        textTransform: "uppercase", color: "var(--color-accent-700)"
+      },
+      rowStyle: {
+        display: "flex", flexWrap: "wrap", gap: "12px 20px",
+        alignItems: "flex-start", padding: "18px 32px", cursor: "pointer",
+        borderBottom: "2px solid var(--color-divider)",
+        background: t.id === this.state.openId ? "var(--color-neutral-200)" : "transparent",
+        opacity: t.status === "Cancelada" ? 0.6 : 1
+      },
+      dueStyle: {
+        fontFamily: "var(--font-heading)", fontWeight: 600, fontSize: "13px", letterSpacing: "0.04em",
+        color: t.status === "Concluída" || t.status === "Cancelada" ? "var(--color-neutral-700)" : "var(--color-text)"
+      }
+    });
+
+    const vals = {
+      isList: view === "list",
+      isKanban: view === "kanban",
+      goList: () => this.setState({ view: "list" }),
+      goKanban: () => this.setState({ view: "kanban" }),
+      tabListStyle: this.tabStyle(view === "list"),
+      tabKanbanStyle: this.tabStyle(view === "kanban"),
+      projectName: this.state.projects[this.state.project].name,
+      projectCount: this.state.projects.length,
+      doneRatio: done + " / " + list.length,
+      tasks: list.map(decorate),
+      columns: ORDER.map((name, i) => {
+        const cards = list.filter((t) => t.status === name);
+        return {
+          name,
+          count: cards.length,
+          style: {
+            borderRight: i < ORDER.length - 1 ? "2px solid var(--color-divider)" : "0",
+            background: name === "Cancelada" ? "var(--color-neutral-100)" : "transparent"
+          },
+          cards: cards.map((t) => ({
+            ...t,
+            open: () => this.setState({ openId: t.id }),
+            meta: this.fmtDate(t.date) + " · " + t.time + (t.files.length ? " · " + t.files.length + (t.files.length > 1 ? " anexos" : " anexo") : ""),
+            cardStyle: {
+              border: "2px solid " + (t.id === this.state.openId ? "var(--color-accent)" : "var(--color-divider)"),
+              background: "var(--color-bg)", padding: "14px", display: "flex", flexDirection: "column",
+              gap: "10px", cursor: "pointer",
+              opacity: t.status === "Cancelada" ? 0.6 : 1
+            }
+          }))
+        };
+      }),
+      projects: this.state.projects.map((p, i) => {
+        const active = i === this.state.project;
+        return {
+          name: p.name,
+          count: (this.state.tasks[i] || []).length,
+          select: () => this.setState({ project: i, openId: null }),
+          rename: () => {
+            const name = window.prompt("Nome do projeto", p.name);
+            if (!name) return;
+            this.setState((s) => {
+              const projects = s.projects.slice();
+              projects[i] = { name };
+              return { projects };
+            });
+          },
+          rowStyle: {
+            display: "flex", alignItems: "stretch",
+            background: active ? "var(--color-neutral-200)" : "transparent"
+          },
+          style: {
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px",
+            flex: 1, minWidth: 0, padding: "12px 8px 12px 24px", font: "inherit",
+            fontFamily: "var(--font-heading)", fontWeight: 600, fontSize: "14px", textAlign: "left",
+            cursor: "pointer", border: 0, background: "transparent",
+            borderLeft: active ? "6px solid var(--color-accent)" : "6px solid transparent",
+            marginLeft: "-0px", color: "var(--color-text)"
+          },
+          countStyle: {
+            fontSize: "11px", letterSpacing: "0.08em",
+            color: active ? "var(--color-accent-700)" : "var(--color-neutral-700)"
+          }
+        };
+      }),
+      newProject: () => {
+        const name = window.prompt("Nome do novo projeto", "Novo projeto");
+        if (!name) return;
+        this.setState((s) => {
+          const projects = s.projects.concat([{ name }]);
+          const tasks = { ...s.tasks, [projects.length - 1]: [] };
+          return { projects, tasks, project: projects.length - 1, openId: null };
+        });
+      },
+      newTask: () => {
+        this.setState((s) => {
+          const id = s.nextId;
+          const task = {
+            id, title: "Nova tarefa", desc: "", full: "", date: "", time: "",
+            tags: [], status: "Não iniciada", who: "—", files: []
+          };
+          const tasks = { ...s.tasks };
+          tasks[s.project] = (tasks[s.project] || []).concat([task]);
+          return { tasks, nextId: id + 1, openId: id };
+        });
+      },
+      hasDetail: !!openTask,
+      closeDetail: () => this.setState({ openId: null })
+    };
+
+    if (openTask) {
+      const id = openTask.id;
+      vals.detail = {
+        title: openTask.title, desc: openTask.desc, full: openTask.full,
+        date: openTask.date, time: openTask.time
+      };
+      vals.setTitle = (e) => this.update(id, { title: e.target.value });
+      vals.setDesc = (e) => this.update(id, { desc: e.target.value });
+      vals.setFull = (e) => this.update(id, { full: e.target.value });
+      vals.setDate = (e) => this.update(id, { date: e.target.value });
+      vals.setTime = (e) => this.update(id, { time: e.target.value });
+      vals.statusOptions = ORDER.map((name, i) => {
+        const active = openTask.status === name;
+        return {
+          name,
+          select: () => this.update(id, { status: name }),
+          style: {
+            padding: "12px 14px", font: "inherit", fontFamily: "var(--font-heading)", fontWeight: 600,
+            fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", textAlign: "left",
+            cursor: "pointer", border: 0,
+            borderTop: i > 1 ? "2px solid var(--color-text)" : "0",
+            borderLeft: i % 2 === 1 ? "2px solid var(--color-text)" : "0",
+            background: active ? "var(--color-accent)" : "transparent",
+            color: active ? "var(--color-bg)" : "var(--color-text)"
+          }
+        };
+      });
+      vals.detailTags = openTask.tags.map((name, i) => ({
+        name,
+        remove: () => this.update(id, { tags: openTask.tags.filter((_, j) => j !== i) })
+      }));
+      vals.addTag = () => {
+        const suggestion = TAG_POOL.find((t) => openTask.tags.indexOf(t) === -1) || "";
+        const name = window.prompt("Nova tag", suggestion);
+        if (!name) return;
+        this.update(id, { tags: openTask.tags.concat([name]) });
+      };
+      vals.detailFiles = openTask.files.map((f, i) => ({
+        ...f,
+        remove: () => this.update(id, { files: openTask.files.filter((_, j) => j !== i) }),
+        rowStyle: {
+          display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px",
+          borderTop: i > 0 ? "2px solid var(--color-divider)" : "0"
+        },
+        chipStyle: {
+          flex: "0 0 auto", fontSize: "10px", letterSpacing: "0.1em", padding: "2px 6px",
+          background: "var(--color-text)", color: "var(--color-bg)",
+          fontFamily: "var(--font-heading)", fontWeight: 800
+        }
+      }));
+      vals.addFile = () => {
+        const name = window.prompt("Nome do arquivo ou foto", "captura.png");
+        if (!name) return;
+        const ext = (name.split(".").pop() || "file").toUpperCase().slice(0, 3);
+        this.update(id, { files: openTask.files.concat([{ kind: ext, name, size: "—" }]) });
+      };
+      vals.deleteTask = () => {
+        this.setState((s) => {
+          const tasks = { ...s.tasks };
+          tasks[s.project] = tasks[s.project].filter((t) => t.id !== id);
+          return { tasks, openId: null };
+        });
+      };
+    }
+
+    return vals;
+  }
+}
+</script>
+</body>
+</html>
