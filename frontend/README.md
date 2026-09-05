@@ -1,59 +1,61 @@
-# Taskly
+# Taskly — Frontend (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.23.
+SPA em Angular 21 + Tailwind CSS v4. Gerada com Angular CLI 21.2.23.
 
-## Development server
+## Desenvolvimento local (recomendado para desenvolver)
 
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Pré-requisitos: Node 20 (`nvm use` lê o `.nvmrc`) e o backend rodando em
+`http://localhost:8000` (veja abaixo).
 
 ```bash
-ng generate component component-name
+cd frontend
+npm install        # instala deps (Angular, Tailwind, PostCSS...)
+npm start          # ng serve em http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+O `npm start` recompila e recarrega a cada alteração de arquivo.
+
+> **Backend:** como o PHP roda em container, suba só o banco + a API:
+> ```bash
+> docker compose up -d db backend
+> ```
+> Na primeira vez, sincronize o Sanctum no lockfile:
+> ```bash
+> docker compose run --rm backend composer require laravel/sanctum:^4.2
+> ```
+
+### `node_modules` pertencente ao root?
+
+Se `npm install` falhar com `EACCES ... mkdir '.../frontend/node_modules'`, é
+porque uma execução anterior do Docker criou a pasta como root. Corrija uma vez:
 
 ```bash
-ng generate --help
+sudo rm -rf frontend/node_modules
 ```
 
-## Building
+O `Dockerfile` agora roda como usuário `node` (uid 1000), então isso não deve
+voltar a acontecer.
 
-To build the project run:
+## Configuração de ambiente
+
+`src/environments/environment.ts` (build de produção) e
+`src/environments/environment.development.ts` (usado no `npm start`, via
+`fileReplacements` no `angular.json`). Ambos expõem `apiUrl`.
+
+## Tailwind CSS
+
+Tailwind v4 via `@tailwindcss/postcss` (config em `.postcssrc.json`). Os tokens
+do design system "Modernist" ficam em `src/styles.css`, no bloco `@theme`
+(`bg-bg`, `text-ink`, `bg-accent`, `border-ink/40`, ...).
+
+## Testes
 
 ```bash
-ng build
+npm test           # Vitest (builder @angular/build:unit-test)
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Build
 
 ```bash
-ng test
+npm run build      # artefatos em dist/
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
