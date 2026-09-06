@@ -28,9 +28,11 @@ import { TaskStatusSelectComponent } from './task-status-select.component';
   imports: [TaskStatusSelectComponent, AttachmentListComponent, PromptDialogComponent],
   template: `
     <aside
-      class="fixed inset-y-0 right-0 z-20 flex w-[min(400px,92vw)] flex-col overflow-y-auto border-l-2 border-ink bg-bg shadow-lg"
+      class="fixed inset-y-0 right-0 z-20 flex w-[min(400px,92vw)] flex-col overflow-hidden border-l-2 border-ink bg-bg shadow-lg"
     >
-      <div class="flex min-h-[52px] items-center justify-between gap-3 border-b-2 border-ink px-5">
+      <div
+        class="flex min-h-[52px] shrink-0 items-center justify-between gap-3 border-b-2 border-ink px-5"
+      >
         <span class="text-[11px] tracking-[0.18em] text-muted uppercase">Editar tarefa</span>
         <button
           type="button"
@@ -41,7 +43,7 @@ import { TaskStatusSelectComponent } from './task-status-select.component';
         </button>
       </div>
 
-      <div class="flex flex-1 flex-col gap-[22px] px-5 py-6">
+      <div class="flex min-h-0 flex-1 flex-col gap-[22px] overflow-y-auto px-5 py-6">
         <div class="flex flex-col gap-1.5">
           <label class="field-label" for="task-title">Título</label>
           <input
@@ -141,7 +143,7 @@ import { TaskStatusSelectComponent } from './task-status-select.component';
         </div>
       </div>
 
-      <div class="flex border-t-2 border-ink">
+      <div class="flex shrink-0 border-t-2 border-ink">
         <button type="button" class="auth-submit min-h-[52px] flex-1" (click)="close()">
           Salvar alterações
         </button>
