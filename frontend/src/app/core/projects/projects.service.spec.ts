@@ -75,4 +75,46 @@ describe('ProjectsService', () => {
 
     expect(service.projects()[0].name).toBe('Novo nome');
   });
+
+  it('removes a project and re-activates the first remaining one', () => {
+    service.load().subscribe();
+    http.expectOne(`${environment.apiUrl}/projects`).flush({
+      projects: [project({ id: 1 }), project({ id: 2 })],
+    });
+
+    service.remove(1).subscribe();
+    const req = http.expectOne(`${environment.apiUrl}/projects/1`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(service.projects().map((p) => p.id)).toEqual([2]);
+    expect(service.activeProjectId()).toBe(2);
+  });
+
+  it('clears the active project when the last one is removed', () => {
+    service.load().subscribe();
+    http.expectOne(`${environment.apiUrl}/projects`).flush({ projects: [project({ id: 1 })] });
+
+    service.remove(1).subscribe();
+    http
+      .expectOne(`${environment.apiUrl}/projects/1`)
+      .flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(service.projects()).toEqual([]);
+    expect(service.activeProjectId()).toBeNull();
+  });
+
+  it('keeps the active project when a different one is removed', () => {
+    service.load().subscribe();
+    http.expectOne(`${environment.apiUrl}/projects`).flush({
+      projects: [project({ id: 1 }), project({ id: 2 })],
+    });
+
+    service.remove(2).subscribe();
+    http
+      .expectOne(`${environment.apiUrl}/projects/2`)
+      .flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(service.activeProjectId()).toBe(1);
+  });
 });

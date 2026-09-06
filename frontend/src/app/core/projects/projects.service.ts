@@ -59,4 +59,18 @@ export class ProjectsService {
       }),
     );
   }
+
+  /** Exclui um projeto (cascata no backend: tarefas, tags e anexos). Se o
+   * projeto ativo for removido, ativa o primeiro que sobrar — ou `null` se a
+   * lista ficar vazia; o `effect()` de `TasksService` reage à mudança. */
+  remove(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/projects/${id}`).pipe(
+      tap(() => {
+        this._projects.update((projects) => projects.filter((p) => p.id !== id));
+        if (this._activeProjectId() === id) {
+          this._activeProjectId.set(this._projects()[0]?.id ?? null);
+        }
+      }),
+    );
+  }
 }

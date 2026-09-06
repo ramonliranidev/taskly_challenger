@@ -74,11 +74,11 @@
 - **Tags:** globais por usuário (não por projeto), find-or-create por nome ao salvar uma tarefa — evita duplicar a mesma tag em cada tarefa.
 - **Anexos:** upload real via disco `public` do Laravel (`php artisan storage:link` no start do container); validação de mime (`png,jpg,jpeg,gif,pdf,doc,docx`) e tamanho (máx. 10MB). Ao excluir uma tarefa/projeto, os arquivos correspondentes também são apagados do disco (a cascata do banco `cascadeOnDelete()` só apaga as linhas, não os arquivos).
 - **Auto-save do painel de edição:** cada campo salva sozinho, sem botão "Salvar" bloqueante — texto/prazo usam debounce (~500ms, acumulando patches por tarefa) para não gerar 1 request por tecla; situação/tags/anexos salvam imediatamente.
-- **Diálogos:** `<dialog>` HTML nativo (sem Angular Material) para criar/renomear projeto, nova tag e confirmação de exclusão de tarefa.
+- **Diálogos:** `<dialog>` HTML nativo (sem Angular Material) para criar/renomear projeto, nova tag e confirmação de exclusão de tarefa e de projeto.
 - **Drag-and-drop do Kanban:** `@angular/cdk/drag-drop` (única peça do CDK usada no projeto). Cada coluna é um `cdkDropList` conectado via `cdkDropListGroup`, cada card um `cdkDrag`. Soltar um card em outra coluna chama `TasksService.updateStatus`, que reaproveita o mesmo `PATCH /api/tasks/{id}` do auto-save. UI otimista: a situação é gravada no signal local na hora (o card já "pula" de coluna porque `byStatus()` deriva de `tasks`) e, se o PATCH falhar, a situação anterior é restaurada. Reordenação dentro da mesma coluna não é persistida (o backend não guarda ordem), então o `cdkDropList` roda com `cdkDropListSortingDisabled`.
 
 ## 4. O que foi além do escopo mínimo
 
-- Confirmação antes de excluir uma tarefa (o protótipo de design original apagava com um clique só; adicionado por ser uma ação destrutiva e irreversível).
+- Confirmação antes de excluir uma tarefa ou um projeto (o protótipo de design original apagava com um clique só; adicionado por ser uma ação destrutiva e irreversível).
 - Endpoint `GET /api/tags` para autocomplete de tags já usadas pelo usuário.
-- `DELETE /api/projects/{id}` implementado e testado mesmo sem botão correspondente na UI (o design não especifica essa ação na sidebar).
+- Exclusão de projeto na sidebar (`DELETE /api/projects/{id}`, cascata no backend para tarefas/tags/anexos). Se o projeto ativo for removido, o primeiro projeto restante vira o ativo — ou nenhum, se a lista ficar vazia.

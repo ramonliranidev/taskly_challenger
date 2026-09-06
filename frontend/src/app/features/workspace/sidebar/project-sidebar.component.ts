@@ -9,11 +9,12 @@ import { TasksService } from '../../../core/tasks/tasks.service';
 import { PromptDialogComponent } from '../../../shared/ui/dialog/prompt-dialog.component';
 import { ProjectListItemComponent } from './project-list-item.component';
 
-/** Sidebar de projetos (240px, README §2) — lista, criar/renomear (via
+/** Sidebar de projetos (264px; README §2 pede 240, alargada para caber os
+ * dois botões de ação — Editar/Excluir — sem espremer nomes longos) — lista, criar/renomear (via
  * `<dialog>` nativo, substitui `window.prompt`), o rodapé de progresso e a
- * conta do usuário logado. Rola de forma independente da área de conteúdo
- * (`overflow-y-auto` — ver WorkspaceComponent), então o bloco de
- * conta/Desconectar (fixado na base via `mt-auto`) sempre fica visível. */
+ * conta do usuário logado. Só a lista de projetos rola (`flex-1 min-h-0
+ * overflow-y-auto`); cabeçalho, botão "Novo projeto", progresso e o bloco de
+ * conta/Desconectar ficam fixos e sempre visíveis, mesmo com muitos projetos. */
 @Component({
   selector: 'app-project-sidebar',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,33 +23,34 @@ import { ProjectListItemComponent } from './project-list-item.component';
   host: { class: 'contents' },
   imports: [ProjectListItemComponent, PromptDialogComponent, LucidePlus],
   template: `
-    <aside class="flex h-full flex-col overflow-y-auto border-r-2 border-ink">
-      <div class="flex items-center justify-between gap-2 pt-5 pr-6 pb-3 pl-6">
+    <aside class="flex h-full flex-col overflow-hidden border-r-2 border-ink">
+      <div class="flex shrink-0 items-center justify-between gap-2 pt-5 pr-6 pb-3 pl-6">
         <span class="text-[11px] tracking-[0.18em] text-muted uppercase">Projetos</span>
         <span class="text-[11px] font-extrabold text-muted">{{ projects.projects().length }}</span>
       </div>
 
-      <div class="flex flex-col">
+      <div class="flex min-h-0 flex-1 flex-col overflow-y-auto">
         @for (project of projects.projects(); track project.id) {
           <app-project-list-item
             [project]="project"
             [active]="project.id === projects.activeProjectId()"
             (selected)="projects.selectProject(project.id)"
             (renamed)="openRename(project)"
+            (deleted)="openDelete(project)"
           />
         }
       </div>
 
       <button
         type="button"
-        class="mx-6 my-4 flex items-center gap-2 border-2 border-ink/40 px-3 py-2.5 text-left text-[11px] font-semibold tracking-[0.14em] text-accent-700 uppercase hover:border-accent"
+        class="mx-6 my-4 flex shrink-0 items-center gap-2 border-2 border-ink/40 px-3 py-2.5 text-left text-[11px] font-semibold tracking-[0.14em] text-accent-700 uppercase hover:border-accent"
         (click)="openCreate()"
       >
         <svg lucidePlus class="size-3.5" />
         Novo projeto
       </button>
 
-      <div class="mt-auto flex flex-col gap-1.5 border-t-2 border-ink/40 py-5 pr-6 pl-6">
+      <div class="flex shrink-0 flex-col gap-1.5 border-t-2 border-ink/40 py-5 pr-6 pl-6">
         <span class="text-[11px] tracking-[0.18em] text-muted uppercase">Neste projeto</span>
         <span class="text-[30px] leading-none font-extrabold">
           {{ tasks.counts().done }} / {{ tasks.counts().total }}
@@ -56,7 +58,7 @@ import { ProjectListItemComponent } from './project-list-item.component';
         <span class="text-[12px] text-muted">tarefas concluídas</span>
       </div>
 
-      <div class="flex flex-col border-t-2 border-ink">
+      <div class="flex shrink-0 flex-col border-t-2 border-ink">
         <div class="flex items-center gap-2.5 pt-3.5 pr-6 pb-3 pl-6">
           <span
             class="flex size-7 flex-none items-center justify-center bg-ink text-[11px] font-extrabold text-bg"
@@ -79,6 +81,7 @@ import { ProjectListItemComponent } from './project-list-item.component';
     </aside>
 
     <app-prompt-dialog #projectDialog (confirmed)="onDialogConfirmed($event)" />
+    <app-prompt-dialog #deleteDialog (confirmed)="onDeleteConfirmed()" />
     <app-prompt-dialog #logoutDialog (confirmed)="onLogoutConfirmed()" />
   `,
 })
@@ -89,8 +92,10 @@ export class ProjectSidebarComponent {
   private readonly router = inject(Router);
 
   private readonly projectDialog = viewChild.required<PromptDialogComponent>('projectDialog');
+  private readonly deleteDialog = viewChild.required<PromptDialogComponent>('deleteDialog');
   private readonly logoutDialog = viewChild.required<PromptDialogComponent>('logoutDialog');
   private renamingProjectId: number | null = null;
+  private deletingProjectId: number | null = null;
 
   protected readonly email = computed(() => this.auth.user()?.email ?? '');
   protected readonly initials = computed(() => this.email().slice(0, 2).toUpperCase());
@@ -111,6 +116,24 @@ export class ProjectSidebarComponent {
       confirmLabel: 'Salvar',
       initialValue: project.name,
     });
+  }
+
+  protected openDelete(project: Project): void {
+    this.deletingProjectId = project.id;
+    this.deleteDialog().open({
+      title: 'Excluir projeto',
+      message: `"${project.name}" e todas as suas tarefas serão removidos. Esta ação não pode ser desfeita.`,
+      showInput: false,
+      confirmLabel: 'Excluir',
+    });
+  }
+
+  protected onDeleteConfirmed(): void {
+    if (this.deletingProjectId === null) {
+      return;
+    }
+    this.projects.remove(this.deletingProjectId).subscribe();
+    this.deletingProjectId = null;
   }
 
   protected onDialogConfirmed(name: string): void {

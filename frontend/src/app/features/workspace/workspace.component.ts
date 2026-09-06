@@ -35,7 +35,7 @@ import { WorkspaceHeaderComponent } from './workspace-header.component';
     <div class="flex h-screen flex-col overflow-hidden">
       <app-workspace-header />
 
-      <div class="grid min-h-0 flex-1 grid-cols-[240px_minmax(0,1fr)] items-stretch">
+      <div class="grid min-h-0 flex-1 grid-cols-[264px_minmax(0,1fr)] items-stretch">
         <app-project-sidebar />
 
         <main class="relative min-w-0 overflow-y-auto">
