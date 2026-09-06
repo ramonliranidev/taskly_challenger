@@ -8,10 +8,6 @@ use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    /**
-     * Lista os nomes de tags já usadas pelo usuário autenticado, para
-     * sugestão/autocomplete no diálogo de "+ Tag" do painel de edição.
-     */
     public function index(Request $request): JsonResponse
     {
         $tags = $request->user()->tags()->orderBy('name')->pluck('name');

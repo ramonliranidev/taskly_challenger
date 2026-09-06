@@ -13,9 +13,6 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    /**
-     * Lista os projetos do usuário autenticado, com a contagem de tarefas.
-     */
     public function index(Request $request): JsonResponse
     {
         $projects = $request->user()->projects()->withCount('tasks')->oldest()->get();
@@ -25,9 +22,6 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Cria um novo projeto para o usuário autenticado.
-     */
     public function store(StoreProjectRequest $request): JsonResponse
     {
         $this->authorize('create', Project::class);
@@ -39,9 +33,6 @@ class ProjectController extends Controller
         ], 201);
     }
 
-    /**
-     * Exibe um projeto do usuário autenticado.
-     */
     public function show(Project $project): JsonResponse
     {
         $this->authorize('view', $project);
@@ -51,9 +42,6 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Renomeia um projeto do usuário autenticado.
-     */
     public function update(UpdateProjectRequest $request, Project $project): JsonResponse
     {
         $this->authorize('update', $project);
@@ -65,9 +53,6 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Exclui um projeto do usuário autenticado (cascata: tarefas, tags e anexos).
-     */
     public function destroy(Project $project): JsonResponse
     {
         $this->authorize('delete', $project);

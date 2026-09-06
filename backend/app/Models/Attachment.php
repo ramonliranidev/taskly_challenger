@@ -27,11 +27,9 @@ class Attachment extends Model
     }
 
     /**
-     * Apaga o arquivo do disco de cada anexo. `task_id`/`project_id` usam
-     * `cascadeOnDelete()` no banco — a exclusão em cascata acontece direto
-     * no SQL e não dispara eventos do Eloquent, então os controllers
-     * precisam chamar isto explicitamente *antes* de apagar a
-     * tarefa/projeto, ou o arquivo fica órfão no disco.
+     * A cascata do banco (`cascadeOnDelete()`) roda no SQL sem disparar
+     * eventos do Eloquent, então os controllers chamam isto *antes* de
+     * apagar a tarefa/projeto — senão o arquivo fica órfão no disco.
      *
      * @param  iterable<Attachment>  $attachments
      */

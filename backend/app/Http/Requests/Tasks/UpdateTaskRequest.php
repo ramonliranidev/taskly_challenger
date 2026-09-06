@@ -7,10 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Todos os campos são `sometimes`: o painel de edição salva por campo
- * (auto-save com debounce no título/descrições/prazo, PATCH imediato na
- * situação/tags), então uma mesma requisição pode conter só um campo ou
- * vários — nunca o objeto inteiro é obrigatório.
+ * Todos os campos são `sometimes`: o painel salva por campo, então uma
+ * requisição pode trazer só um campo ou vários.
  */
 class UpdateTaskRequest extends FormRequest
 {

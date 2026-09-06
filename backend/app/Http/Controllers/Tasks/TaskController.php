@@ -15,9 +15,6 @@ use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
-    /**
-     * Lista as tarefas de um projeto do usuário autenticado.
-     */
     public function index(Project $project): JsonResponse
     {
         $this->authorize('view', $project);
@@ -29,9 +26,6 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * Cria uma nova tarefa dentro de um projeto do usuário autenticado.
-     */
     public function store(StoreTaskRequest $request, Project $project): JsonResponse
     {
         $this->authorize('create', [Task::class, $project]);
@@ -52,9 +46,6 @@ class TaskController extends Controller
         ], 201);
     }
 
-    /**
-     * Exibe uma tarefa do usuário autenticado.
-     */
     public function show(Task $task): JsonResponse
     {
         $this->authorize('view', $task);
@@ -64,10 +55,6 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * Atualiza uma tarefa do usuário autenticado — só toca os campos enviados
-     * (painel de edição salva por campo, ver UpdateTaskRequest).
-     */
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
         $this->authorize('update', $task);
@@ -88,9 +75,6 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * Exclui uma tarefa do usuário autenticado (cascata: tags e anexos).
-     */
     public function destroy(Task $task): JsonResponse
     {
         $this->authorize('delete', $task);
@@ -102,12 +86,9 @@ class TaskController extends Controller
     }
 
     /**
-     * Sincroniza as tags de uma tarefa a partir de uma lista de nomes,
-     * criando (ou reaproveitando) as tags do próprio usuário. Usa a relação
-     * `$user->tags()` (em vez de `Tag::create`) para que o `user_id` seja
-     * preenchido pela própria relação — `Tag` só declara `name` como
-     * `#[Fillable]`, então um `create()`/`firstOrCreate()` direto no Model
-     * descartaria o `user_id` silenciosamente.
+     * Usa `$user->tags()` (não `Tag::firstOrCreate`) para preencher o
+     * `user_id`: `Tag` só tem `name` como `#[Fillable]`, um create direto no
+     * Model descartaria o `user_id` silenciosamente.
      *
      * @param  array<int, string>  $names
      */

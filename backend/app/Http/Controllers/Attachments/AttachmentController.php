@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class AttachmentController extends Controller
 {
-    /**
-     * Anexa um ou mais arquivos a uma tarefa do usuário autenticado.
-     */
     public function store(StoreAttachmentRequest $request, Task $task): JsonResponse
     {
         $this->authorize('create', [Attachment::class, $task]);
@@ -36,9 +33,6 @@ class AttachmentController extends Controller
         ], 201);
     }
 
-    /**
-     * Remove um anexo (arquivo no disco + registro) de uma tarefa do usuário autenticado.
-     */
     public function destroy(Attachment $attachment): JsonResponse
     {
         $this->authorize('delete', $attachment);
