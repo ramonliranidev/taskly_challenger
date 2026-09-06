@@ -1,8 +1,10 @@
+import { CdkDragDrop, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { ProjectsService } from '../../../core/projects/projects.service';
 import { TasksService } from '../../../core/tasks/tasks.service';
+import { TaskStatus } from '../../../core/tasks/task.models';
 import { initialsOf } from '../../../shared/utils/format';
 import { KanbanColumnComponent } from './kanban-column.component';
 
@@ -13,10 +15,11 @@ import { KanbanColumnComponent } from './kanban-column.component';
 @Component({
   selector: 'app-kanban-board',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [KanbanColumnComponent],
+  imports: [KanbanColumnComponent, CdkDropListGroup],
   template: `
     <div
       class="grid h-full auto-cols-[minmax(250px,1fr)] grid-flow-col items-stretch overflow-x-auto"
+      cdkDropListGroup
     >
       @for (column of tasks.byStatus(); track column.status; let last = $last) {
         <app-kanban-column
@@ -27,6 +30,7 @@ import { KanbanColumnComponent } from './kanban-column.component';
           [initials]="initials()"
           (opened)="tasks.openTaskPanel($event)"
           (addTask)="createTask()"
+          (dropped)="onDropped($event)"
         />
       }
     </div>
@@ -43,6 +47,15 @@ export class KanbanBoardComponent {
     const border = last ? '' : 'border-r-2 border-ink/40';
     const bg = status === 'cancelled' ? 'bg-field' : '';
     return `${border} ${bg}`;
+  }
+
+  /** Card arrastado para outra coluna → PATCH da situação (UI otimista com
+   * reversão no serviço). Soltar na mesma coluna não persiste ordem. */
+  protected onDropped(event: CdkDragDrop<TaskStatus>): void {
+    if (event.previousContainer === event.container) {
+      return;
+    }
+    this.tasks.updateStatus(event.item.data as number, event.container.data);
   }
 
   protected createTask(): void {

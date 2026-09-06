@@ -1,3 +1,4 @@
+import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import { TASK_STATUS_LABELS } from '../../../core/tasks/task-status';
@@ -15,15 +16,23 @@ import { TaskCardComponent } from './task-card.component';
   // cabeçalho fixo + corpo, herdando a altura total da linha (stretch
   // padrão do grid) para as réguas entre colunas baterem no rodapé.
   host: { class: 'flex flex-col' },
-  imports: [TaskCardComponent],
+  imports: [TaskCardComponent, CdkDropList, CdkDrag],
   template: `
     <div class="flex min-h-[52px] items-center justify-between gap-3 border-b-2 border-ink/40 px-5">
       <span class="text-[11px] tracking-[0.16em] whitespace-nowrap uppercase">{{ label() }}</span>
       <span class="text-[13px] font-extrabold text-muted">{{ tasks().length }}</span>
     </div>
-    <div class="flex flex-col gap-4 p-4">
+    <div
+      class="flex flex-1 flex-col gap-4 p-4"
+      cdkDropList
+      cdkDropListSortingDisabled
+      [cdkDropListData]="status()"
+      (cdkDropListDropped)="dropped.emit($event)"
+    >
       @for (task of tasks(); track task.id) {
         <app-task-card
+          cdkDrag
+          [cdkDragData]="task.id"
           [task]="task"
           [isOpen]="task.id === openTaskId()"
           [initials]="initials()"
@@ -47,6 +56,9 @@ export class KanbanColumnComponent {
   readonly initials = input.required<string>();
   readonly opened = output<number>();
   readonly addTask = output<void>();
+  /** Card solto nesta ou noutra coluna — o board lê `container`/`previousContainer`
+   * (que carregam a `TaskStatus` de cada coluna) e dispara o PATCH. */
+  readonly dropped = output<CdkDragDrop<TaskStatus>>();
 
   protected readonly label = computed(() => TASK_STATUS_LABELS[this.status()]);
 }

@@ -134,6 +134,35 @@ describe('TasksService', () => {
     expect(service.tasks()[0].status).toBe('in_progress');
   });
 
+  it('reverts the status locally when the PATCH fails (optimistic drag-and-drop)', () => {
+    projects.selectProject(1);
+    TestBed.tick();
+    http
+      .expectOne(`${environment.apiUrl}/projects/1/tasks`)
+      .flush({ tasks: [task({ id: 1, status: 'not_started' })] });
+
+    service.updateStatus(1, 'done');
+    expect(service.tasks()[0].status).toBe('done'); // move otimista
+
+    http
+      .expectOne(`${environment.apiUrl}/tasks/1`)
+      .flush('boom', { status: 500, statusText: 'Server Error' });
+
+    expect(service.tasks()[0].status).toBe('not_started'); // revertido
+  });
+
+  it('ignores a status change to the same value (drop on the origin column)', () => {
+    projects.selectProject(1);
+    TestBed.tick();
+    http
+      .expectOne(`${environment.apiUrl}/projects/1/tasks`)
+      .flush({ tasks: [task({ id: 1, status: 'in_progress' })] });
+
+    service.updateStatus(1, 'in_progress');
+
+    http.expectNone(`${environment.apiUrl}/tasks/1`);
+  });
+
   it('deletes a task, removes it locally and closes the panel if it was open', () => {
     projects.selectProject(1);
     TestBed.tick();

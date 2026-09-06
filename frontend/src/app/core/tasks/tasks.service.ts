@@ -121,10 +121,22 @@ export class TasksService {
     this.flush$.next();
   }
 
+  /**
+   * Muda a situação da tarefa via o mesmo PATCH do painel de edição. UI
+   * otimista: grava local na hora e, se o request falhar, volta a situação
+   * anterior (o card do Kanban some da coluna de destino e reaparece na de
+   * origem sozinho, porque `byStatus()` deriva de `_tasks`).
+   */
   updateStatus(taskId: number, status: TaskStatus): void {
+    const previous = this._tasks().find((t) => t.id === taskId)?.status;
+    if (previous === undefined || previous === status) {
+      return;
+    }
     this.flushPending();
     this.patchLocal(taskId, { status });
-    this.sendPatch(taskId, { status }).subscribe();
+    this.sendPatch(taskId, { status }).subscribe({
+      error: () => this.patchLocal(taskId, { status: previous }),
+    });
   }
 
   addTag(taskId: number, name: string): void {

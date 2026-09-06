@@ -7,6 +7,7 @@
 - [x] CRUD de Tarefas (título, descrição curta, descrição completa, prazo, tags, anexos/fotos)
 - [x] Alternância de visualização Lista / Kanban
 - [x] Status de tarefa: Não iniciada, Em andamento, Concluída, Cancelada
+- [x] Kanban: arrastar cards entre colunas troca a situação da tarefa (drag-and-drop)
 
 ## 2. Modelagem de dados
 
@@ -73,7 +74,8 @@
 - **Tags:** globais por usuário (não por projeto), find-or-create por nome ao salvar uma tarefa — evita duplicar a mesma tag em cada tarefa.
 - **Anexos:** upload real via disco `public` do Laravel (`php artisan storage:link` no start do container); validação de mime (`png,jpg,jpeg,gif,pdf,doc,docx`) e tamanho (máx. 10MB). Ao excluir uma tarefa/projeto, os arquivos correspondentes também são apagados do disco (a cascata do banco `cascadeOnDelete()` só apaga as linhas, não os arquivos).
 - **Auto-save do painel de edição:** cada campo salva sozinho, sem botão "Salvar" bloqueante — texto/prazo usam debounce (~500ms, acumulando patches por tarefa) para não gerar 1 request por tecla; situação/tags/anexos salvam imediatamente.
-- **Diálogos:** `<dialog>` HTML nativo (sem CDK/Material) para criar/renomear projeto, nova tag e confirmação de exclusão de tarefa.
+- **Diálogos:** `<dialog>` HTML nativo (sem Angular Material) para criar/renomear projeto, nova tag e confirmação de exclusão de tarefa.
+- **Drag-and-drop do Kanban:** `@angular/cdk/drag-drop` (única peça do CDK usada no projeto). Cada coluna é um `cdkDropList` conectado via `cdkDropListGroup`, cada card um `cdkDrag`. Soltar um card em outra coluna chama `TasksService.updateStatus`, que reaproveita o mesmo `PATCH /api/tasks/{id}` do auto-save. UI otimista: a situação é gravada no signal local na hora (o card já "pula" de coluna porque `byStatus()` deriva de `tasks`) e, se o PATCH falhar, a situação anterior é restaurada. Reordenação dentro da mesma coluna não é persistida (o backend não guarda ordem), então o `cdkDropList` roda com `cdkDropListSortingDisabled`.
 
 ## 4. O que foi além do escopo mínimo
 

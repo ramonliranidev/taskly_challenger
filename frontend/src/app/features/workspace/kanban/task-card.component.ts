@@ -8,6 +8,9 @@ import { formatDueDate } from '../../../shared/utils/format';
 @Component({
   selector: 'app-task-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Host é o elemento arrastável (cdkDrag) no Kanban — precisa de caixa de
+  // bloco para o clone/preview do CDK não colapsar.
+  host: { class: 'block' },
   template: `
     <article
       class="flex cursor-pointer flex-col gap-2.5 border-2 bg-bg p-3.5"
