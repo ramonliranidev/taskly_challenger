@@ -5,8 +5,6 @@ import { Task } from '../../../core/tasks/task.models';
 import { formatDueDate } from '../../../shared/utils/format';
 import { StatusBadgeComponent } from '../status/status-badge.component';
 
-/** Linha de tarefa na visão Lista — README §3. O grupo de metadados quebra
- * pra uma segunda linha (flex-wrap) antes de encolher o bloco de título. */
 @Component({
   selector: 'app-task-row',
   changeDetection: ChangeDetectionStrategy.OnPush,

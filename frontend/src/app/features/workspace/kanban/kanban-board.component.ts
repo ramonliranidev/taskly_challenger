@@ -8,10 +8,8 @@ import { TaskStatus } from '../../../core/tasks/task.models';
 import { initialsOf } from '../../../shared/utils/format';
 import { KanbanColumnComponent } from './kanban-column.component';
 
-/** Grade de colunas do Kanban — README §4: `grid-auto-flow: column`,
- * `grid-auto-columns: minmax(250px, 1fr)`, rolagem horizontal, nunca
- * comprimir as quatro colunas. Borda entre colunas (exceto a última) e o
- * fundo da coluna "Cancelada" são aplicados aqui, por posição entre irmãs. */
+/** Borda entre colunas (exceto a última) e o fundo da coluna "Cancelada" são
+ * aplicados aqui, por dependerem da posição entre irmãs. */
 @Component({
   selector: 'app-kanban-board',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,8 +47,6 @@ export class KanbanBoardComponent {
     return `${border} ${bg}`;
   }
 
-  /** Card arrastado para outra coluna → PATCH da situação (UI otimista com
-   * reversão no serviço). Soltar na mesma coluna não persiste ordem. */
   protected onDropped(event: CdkDragDrop<TaskStatus>): void {
     if (event.previousContainer === event.container) {
       return;

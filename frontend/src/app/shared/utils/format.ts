@@ -1,5 +1,4 @@
-/** Formata um tamanho em bytes para exibição (`412 KB`, `1,4 MB`, ...). O
- * backend sempre manda o tamanho cru em bytes — a formatação é só de UI. */
+/** Bytes → `412 KB`, `1,4 MB`, ... (o backend só manda o valor cru). */
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) {
     return `${bytes} B`;
@@ -15,8 +14,7 @@ export function formatBytes(bytes: number): string {
   return `${formatted} ${units[unitIndex]}`;
 }
 
-/** Iniciais do avatar (card do Kanban) a partir do nome do usuário logado —
- * `who` nunca é um campo do backend, é sempre derivado no cliente. */
+/** Iniciais do avatar a partir do nome do usuário logado. */
 export function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) {
@@ -27,8 +25,7 @@ export function initialsOf(name: string): string {
   return (first + last).toUpperCase();
 }
 
-/** `due_date` do backend é um único timestamp ISO — os inputs `date`/`time`
- * do painel de edição precisam dele separado em duas strings. */
+/** `due_date` é um único ISO no backend; os inputs `date`/`time` precisam separado. */
 export function splitIsoDateTime(iso: string | null): { date: string; time: string } {
   if (!iso) {
     return { date: '', time: '' };
@@ -43,8 +40,7 @@ export function splitIsoDateTime(iso: string | null): { date: string; time: stri
   return { date, time };
 }
 
-/** Caminho inverso de `splitIsoDateTime`: combina os dois inputs num único
- * ISO para mandar ao backend. Sem data, não há prazo (`null`). */
+/** Inverso de `splitIsoDateTime`. Sem data, não há prazo (`null`). */
 export function combineDateTime(date: string, time: string): string | null {
   if (!date) {
     return null;
@@ -53,7 +49,7 @@ export function combineDateTime(date: string, time: string): string | null {
   return Number.isNaN(local.getTime()) ? null : local.toISOString();
 }
 
-/** Prazo formatado para exibição na Lista/Kanban: `DD/MM` e `HH:MM`. */
+/** Prazo para exibição na Lista/Kanban: `DD/MM` e `HH:MM`. */
 export function formatDueDate(iso: string | null): { date: string; time: string } {
   if (!iso) {
     return { date: '—', time: '' };

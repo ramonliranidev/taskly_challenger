@@ -4,8 +4,6 @@ import { LucideKanban, LucideList } from '@lucide/angular';
 import { ProjectsService } from '../../core/projects/projects.service';
 import { TasksService } from '../../core/tasks/tasks.service';
 
-/** Cabeçalho fixo da tela — README §1: marca + projeto ativo à esquerda,
- * toggle Lista/Kanban + "Nova tarefa" coladas à direita. */
 @Component({
   selector: 'app-workspace-header',
   changeDetection: ChangeDetectionStrategy.OnPush,

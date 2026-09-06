@@ -7,21 +7,6 @@ import { BrandPanelComponent } from './brand-panel.component';
 
 type AuthMode = 'login' | 'signup';
 
-/**
- * Casca compartilhada das telas de autenticação: layout de duas colunas,
- * painel-pôster à esquerda e, à direita, abas + cabeçalho + réguas.
- *
- * É a própria rota-pai de /login e /cadastro (ver app.routes.ts): as duas
- * telas são filhas dela e trocam apenas pelo `<router-outlet>` interno, para
- * que o painel-pôster e as abas não sejam destruídos/recriados ao alternar.
- *
- * A coluna da direita fica alinhada ao topo (não centralizada). O cadastro
- * tem um campo a mais e é mais alto que o login; centralizar verticalmente
- * faria as abas subirem/descerem de posição a cada troca — é essa diferença
- * de altura entre os dois formulários, e não a troca de rota em si, que
- * causava o "flick" para cima e para baixo. Com o topo fixo, só o conteúdo
- * abaixo das abas cresce para baixo.
- */
 @Component({
   selector: 'app-auth-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,8 +54,6 @@ type AuthMode = 'login' | 'signup';
 export class AuthShellComponent {
   private readonly router = inject(Router);
 
-  /** Deriva o modo (login/cadastro) da URL ativa em vez de um @Input — a
-   * rota filha é quem muda agora, esta casca fica montada o tempo todo. */
   protected readonly mode = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),

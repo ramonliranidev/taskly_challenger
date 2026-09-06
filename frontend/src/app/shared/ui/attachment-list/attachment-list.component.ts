@@ -6,11 +6,6 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 
 const IMAGE_KINDS = ['PNG', 'JPG', 'JPEG', 'GIF'];
 
-/**
- * Lista de anexos do painel de edição (README §5.7): selo de tipo (ou
- * miniatura em P&B para imagens — regra do design system, §12), nome,
- * tamanho e botão Remover; rodapé com o input de arquivo real.
- */
 @Component({
   selector: 'app-attachment-list',
   changeDetection: ChangeDetectionStrategy.OnPush,

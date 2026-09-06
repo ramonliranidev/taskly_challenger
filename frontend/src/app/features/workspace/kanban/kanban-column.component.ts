@@ -5,16 +5,11 @@ import { TASK_STATUS_LABELS } from '../../../core/tasks/task-status';
 import { Task, TaskStatus } from '../../../core/tasks/task.models';
 import { TaskCardComponent } from './task-card.component';
 
-/** Coluna do Kanban — README §4. A borda entre colunas e o fundo da coluna
- * "Cancelada" são aplicados pelo `KanbanBoardComponent` (dependem da posição
- * entre irmãos, não são responsabilidade de uma coluna isolada). */
 @Component({
   selector: 'app-kanban-column',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // O host é o próprio item da grid de colunas (grid-auto-flow: column) no
-  // KanbanBoardComponent — precisa de `flex flex-col` para empilhar
-  // cabeçalho fixo + corpo, herdando a altura total da linha (stretch
-  // padrão do grid) para as réguas entre colunas baterem no rodapé.
+  // Host é o item da grid de colunas — `flex flex-col` empilha cabeçalho +
+  // corpo e herda a altura da linha (stretch) para as réguas baterem no rodapé.
   host: { class: 'flex flex-col' },
   imports: [TaskCardComponent, CdkDropList, CdkDrag],
   template: `
@@ -56,8 +51,6 @@ export class KanbanColumnComponent {
   readonly initials = input.required<string>();
   readonly opened = output<number>();
   readonly addTask = output<void>();
-  /** Card solto nesta ou noutra coluna — o board lê `container`/`previousContainer`
-   * (que carregam a `TaskStatus` de cada coluna) e dispara o PATCH. */
   readonly dropped = output<CdkDragDrop<TaskStatus>>();
 
   protected readonly label = computed(() => TASK_STATUS_LABELS[this.status()]);

@@ -8,19 +8,12 @@ import {
 } from '@angular/core';
 
 /**
- * Diálogo genérico sobre `<dialog>` nativo — sem CDK/Material. Cobre os
- * prompts de projeto novo/renomear, nova tag e a confirmação de exclusão de
- * tarefa (`showInput=false`, só título/mensagem + Confirmar/Cancelar).
- *
- * ESC e clique fora fecham de graça (comportamento nativo do `<dialog>`) sem
+ * Diálogo genérico sobre `<dialog>` nativo. ESC e clique fora fecham sem
  * emitir `confirmed` — só o submit do form emite.
  *
- * O host é `contents`: um `<dialog>` fechado já é `display: none` (regra
- * padrão do HTML), mas o elemento host do componente em si é um bloco comum
- * — sem isso, ele ocupa uma célula de grid/flex do pai mesmo escondido (foi
- * exatamente o que empurrou o `<main>` da tela de workspace pra uma segunda
- * linha quando este componente virou irmão de `<aside>`/`<main>` num grid de
- * 2 colunas).
+ * Host `contents`: sem isso o elemento host (bloco comum, ao contrário do
+ * `<dialog>` fechado que já é `display: none`) ocupa uma célula do grid/flex
+ * do pai mesmo escondido.
  */
 @Component({
   selector: 'app-prompt-dialog',
@@ -90,7 +83,6 @@ export class PromptDialogComponent {
 
   private readonly dialogEl = viewChild.required<ElementRef<HTMLDialogElement>>('dialogEl');
 
-  /** Abre o diálogo já configurado — chamado pelo componente que o hospeda. */
   open(options: {
     title: string;
     message?: string;

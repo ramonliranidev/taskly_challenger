@@ -4,10 +4,6 @@ import { map, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 
-/**
- * Nomes de tags já usadas pelo usuário — só para sugestão/autocomplete no
- * diálogo de "+ Tag" do painel de edição (`GET /api/tags`).
- */
 @Injectable({ providedIn: 'root' })
 export class TagsService {
   private readonly http = inject(HttpClient);

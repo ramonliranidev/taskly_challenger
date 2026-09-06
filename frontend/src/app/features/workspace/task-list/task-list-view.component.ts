@@ -4,8 +4,6 @@ import { ProjectsService } from '../../../core/projects/projects.service';
 import { TasksService } from '../../../core/tasks/tasks.service';
 import { TaskRowComponent } from './task-row.component';
 
-/** Visão em Lista — README §3: cabeçalho de colunas, linhas de tarefa e o
- * botão "+ Nova tarefa" de largura total ao final. */
 @Component({
   selector: 'app-task-list-view',
   changeDetection: ChangeDetectionStrategy.OnPush,

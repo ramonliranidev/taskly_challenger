@@ -3,7 +3,6 @@ import { LucidePencil, LucideTrash2 } from '@lucide/angular';
 
 import { Project } from '../../../core/projects/project.models';
 
-/** Linha de projeto na sidebar — README §2. */
 @Component({
   selector: 'app-project-list-item',
   changeDetection: ChangeDetectionStrategy.OnPush,

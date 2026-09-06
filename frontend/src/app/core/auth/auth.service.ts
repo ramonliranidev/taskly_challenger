@@ -8,11 +8,6 @@ import { AuthResponse, AuthUser, LoginPayload, RegisterPayload } from './auth.mo
 const TOKEN_KEY = 'taskly.token';
 const USER_KEY = 'taskly.user';
 
-/**
- * Autenticação da SPA: fala com os endpoints do backend em
- * `environment.apiUrl` e persiste a sessão (token + usuário) no
- * `localStorage`, de modo que um refresh mantém o usuário logado.
- */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -87,6 +82,6 @@ function writeStorage(key: string, value: string | null): void {
       localStorage.setItem(key, value);
     }
   } catch {
-    /* localStorage indisponível (modo privado, etc.) — sessão fica só em memória. */
+    /* localStorage indisponível — sessão fica só em memória. */
   }
 }

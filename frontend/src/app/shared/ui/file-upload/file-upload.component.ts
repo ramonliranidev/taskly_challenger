@@ -1,12 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, output, viewChild } from '@angular/core';
 import { LucideImage } from '@lucide/angular';
 
-/**
- * Botão "+ Anexar arquivo ou foto" real (README §5.7): dispara um
- * `<input type="file">` escondido e emite a `FileList` escolhida — sem
- * preview local, a miniatura vem pronta na resposta do upload (ver
- * `TasksService.uploadAttachments`).
- */
 @Component({
   selector: 'app-file-upload',
   changeDetection: ChangeDetectionStrategy.OnPush,

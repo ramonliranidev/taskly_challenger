@@ -10,16 +10,11 @@ import { Attachment, Task, TaskStatus, UpdateTaskPayload } from './task.models';
 export type TaskViewMode = 'list' | 'kanban';
 
 /**
- * Tarefas do projeto ativo (ver `ProjectsService`), visão Lista/Kanban e o
- * painel de edição sobreposto. Um `effect()` observa `activeProjectId` e
- * centraliza aqui a regra "trocar de projeto recarrega as tarefas e fecha o
- * painel" — nenhum componente precisa lidar com isso.
- *
- * Auto-save do painel: campos de texto/prazo usam debounce por acumulador
- * (grava local na hora, só dispara o PATCH depois de ~500ms de silêncio —
- * um `debounceTime` ingênuo sobre um Subject de patches perderia edições de
- * campos diferentes dentro da mesma janela). Situação/tags/anexos/exclusão
- * são imediatos, sempre dando flush do que estiver pendente antes.
+ * Auto-save do painel: texto/prazo usam debounce por acumulador (grava local
+ * na hora, dispara o PATCH após ~500ms de silêncio — um `debounceTime`
+ * ingênuo sobre um Subject de patches perderia edições de campos diferentes
+ * na mesma janela). Situação/tags/anexos/exclusão são imediatos, sempre
+ * dando flush do pendente antes.
  */
 @Injectable({ providedIn: 'root' })
 export class TasksService {
@@ -39,7 +34,6 @@ export class TasksService {
     () => this._tasks().find((t) => t.id === this._openTaskId()) ?? null,
   );
 
-  /** Colunas do Kanban, na ordem fixa do design (README §4). */
   readonly byStatus = computed(() => {
     const tasks = this._tasks();
     return TASK_STATUS_ORDER.map((status) => ({
@@ -48,7 +42,6 @@ export class TasksService {
     }));
   });
 
-  /** Rodapé da sidebar: "concluídas / total" do projeto ativo. */
   readonly counts = computed(() => {
     const tasks = this._tasks();
     return { done: tasks.filter((t) => t.status === 'done').length, total: tasks.length };
@@ -70,10 +63,8 @@ export class TasksService {
         this._tasks.set([]);
         return;
       }
-      // error: () => void 0 — fire-and-forget, mesmo padrão do
-      // AuthService.logout(). Uma reexecução deste efeito bem no momento
-      // do logout/troca de rota pode chegar a disparar esta chamada com o
-      // token já limpo (401); não há nada a fazer além de ignorar.
+      // Fire-and-forget: uma reexecução no momento do logout/troca de rota
+      // pode disparar isto com o token já limpo (401) — nada a fazer.
       this.loadForProject(projectId).subscribe({ error: () => void 0 });
     });
   }
@@ -98,7 +89,6 @@ export class TasksService {
     );
   }
 
-  /** Cria "Nova tarefa" (sem tags/anexos, situação padrão) e já abre o painel nela. */
   create(projectId: number): Observable<Task> {
     return this.http
       .post<{ task: Task }>(`${this.api}/projects/${projectId}/tasks`, { title: 'Nova tarefa' })
@@ -121,12 +111,7 @@ export class TasksService {
     this.flush$.next();
   }
 
-  /**
-   * Muda a situação da tarefa via o mesmo PATCH do painel de edição. UI
-   * otimista: grava local na hora e, se o request falhar, volta a situação
-   * anterior (o card do Kanban some da coluna de destino e reaparece na de
-   * origem sozinho, porque `byStatus()` deriva de `_tasks`).
-   */
+  /** UI otimista: grava a situação local na hora e reverte se o PATCH falhar. */
   updateStatus(taskId: number, status: TaskStatus): void {
     const previous = this._tasks().find((t) => t.id === taskId)?.status;
     if (previous === undefined || previous === status) {
@@ -161,8 +146,6 @@ export class TasksService {
     this.sendPatch(taskId, { tags }).subscribe();
   }
 
-  /** Upload imediato — a miniatura da resposta já traz a `url` pronta, sem
-   * precisar de preview local via FileReader/blob. */
   uploadAttachments(taskId: number, files: FileList): void {
     const form = new FormData();
     Array.from(files).forEach((file) => form.append('files[]', file));

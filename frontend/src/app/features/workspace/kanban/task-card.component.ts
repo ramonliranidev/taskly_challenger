@@ -4,12 +4,10 @@ import { taskRowOpacityClass } from '../../../core/tasks/task-status';
 import { Task } from '../../../core/tasks/task.models';
 import { formatDueDate } from '../../../shared/utils/format';
 
-/** Cartão de tarefa no Kanban — README §4. */
 @Component({
   selector: 'app-task-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // Host é o elemento arrastável (cdkDrag) no Kanban — precisa de caixa de
-  // bloco para o clone/preview do CDK não colapsar.
+  // Host é o cdkDrag: precisa de caixa de bloco para o clone/preview do CDK não colapsar.
   host: { class: 'block' },
   template: `
     <article

@@ -3,8 +3,6 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { TASK_STATUS_BADGE_CLASSES, TASK_STATUS_LABELS } from '../../../core/tasks/task-status';
 import { TaskStatus } from '../../../core/tasks/task.models';
 
-/** Etiqueta de status reutilizada na Lista, no Kanban (via meta) e no
- * seletor de situação do painel — README §6. */
 @Component({
   selector: 'app-status-badge',
   changeDetection: ChangeDetectionStrategy.OnPush,

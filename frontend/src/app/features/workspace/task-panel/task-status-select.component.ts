@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { TASK_STATUS_LABELS, TASK_STATUS_ORDER } from '../../../core/tasks/task-status';
 import { TaskStatus } from '../../../core/tasks/task.models';
 
-/** Grade 2×2 de situação no painel de edição — README §5.5. */
 @Component({
   selector: 'app-task-status-select',
   changeDetection: ChangeDetectionStrategy.OnPush,

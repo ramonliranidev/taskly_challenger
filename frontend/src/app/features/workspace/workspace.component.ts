@@ -8,19 +8,6 @@ import { TaskEditPanelComponent } from './task-panel/task-edit-panel.component';
 import { TaskListViewComponent } from './task-list/task-list-view.component';
 import { WorkspaceHeaderComponent } from './workspace-header.component';
 
-/**
- * Tela principal do Taskly pós-login — README (design-reference) da feature
- * de Lista/Kanban. Layout de duas linhas: cabeçalho fixo + grid de duas
- * colunas (sidebar 240px + conteúdo). O painel de edição é sobreposto
- * (`position: fixed`), não ocupa coluna do grid.
- *
- * O shell ocupa exatamente a altura da viewport (`h-screen overflow-hidden`
- * no contêiner externo, `min-h-0` na grade) e cada coluna rola sozinha
- * (`overflow-y-auto` na sidebar e na área de conteúdo) — a sidebar não
- * cresce com a lista de projetos, então o bloco de conta/Desconectar
- * (fixado na base dela via `mt-auto`) sempre fica visível sem depender do
- * scroll da lista de tarefas ao lado.
- */
 @Component({
   selector: 'app-workspace',
   changeDetection: ChangeDetectionStrategy.OnPush,

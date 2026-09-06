@@ -11,14 +11,12 @@ import { Router, RouterLink } from '@angular/router';
 import { toAuthErrorMessage } from '../../../core/auth/auth-error';
 import { AuthService } from '../../../core/auth/auth.service';
 
-/** Erro de grupo: a confirmação precisa bater com a senha. */
 function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
   const confirm = group.get('confirmPassword')?.value;
   return password && confirm && password !== confirm ? { passwordMismatch: true } : null;
 }
 
-/** O design não coleta "nome"; derivamos um a partir do e-mail para o backend. */
 function deriveNameFromEmail(email: string): string {
   const localPart = email.split('@')[0] ?? '';
   const name = localPart

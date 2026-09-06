@@ -5,11 +5,6 @@ import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Project } from './project.models';
 
-/**
- * Projetos do usuário logado: lista + qual está ativo. `TasksService`
- * observa `activeProjectId` (via `effect()`) para recarregar as tarefas e
- * fechar o painel de edição sempre que o projeto ativo muda.
- */
 @Injectable({ providedIn: 'root' })
 export class ProjectsService {
   private readonly http = inject(HttpClient);
@@ -24,7 +19,6 @@ export class ProjectsService {
     () => this._projects().find((p) => p.id === this._activeProjectId()) ?? null,
   );
 
-  /** Carrega os projetos do usuário e ativa o primeiro, se nenhum estiver ativo ainda. */
   load(): Observable<Project[]> {
     return this.http.get<{ projects: Project[] }>(`${this.api}/projects`).pipe(
       map((res) => res.projects),

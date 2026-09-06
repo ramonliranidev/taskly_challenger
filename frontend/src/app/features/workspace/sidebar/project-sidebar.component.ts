@@ -9,17 +9,12 @@ import { TasksService } from '../../../core/tasks/tasks.service';
 import { PromptDialogComponent } from '../../../shared/ui/dialog/prompt-dialog.component';
 import { ProjectListItemComponent } from './project-list-item.component';
 
-/** Sidebar de projetos (264px; README §2 pede 240, alargada para caber os
- * dois botões de ação — Editar/Excluir — sem espremer nomes longos) — lista, criar/renomear (via
- * `<dialog>` nativo, substitui `window.prompt`), o rodapé de progresso e a
- * conta do usuário logado. Só a lista de projetos rola (`flex-1 min-h-0
- * overflow-y-auto`); cabeçalho, botão "Novo projeto", progresso e o bloco de
- * conta/Desconectar ficam fixos e sempre visíveis, mesmo com muitos projetos. */
+/** Só a lista de projetos rola (`flex-1 min-h-0 overflow-y-auto`); cabeçalho,
+ * "Novo projeto", progresso e o bloco de conta/Desconectar ficam fixos. */
 @Component({
   selector: 'app-project-sidebar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // Host "invisível" pro layout: quem participa do grid da tela é o
-  // próprio <aside> (mesmo truque do BrandPanelComponent das telas de auth).
+  // Host `contents`: quem participa do grid da tela é o próprio <aside>.
   host: { class: 'contents' },
   imports: [ProjectListItemComponent, PromptDialogComponent, LucidePlus],
   template: `

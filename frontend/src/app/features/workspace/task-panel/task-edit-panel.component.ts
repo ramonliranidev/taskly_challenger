@@ -15,13 +15,8 @@ import { PromptDialogComponent } from '../../../shared/ui/dialog/prompt-dialog.c
 import { combineDateTime, splitIsoDateTime } from '../../../shared/utils/format';
 import { TaskStatusSelectComponent } from './task-status-select.component';
 
-/**
- * Painel de edição sobreposto — README §5. Cada campo salva sozinho
- * (`TasksService.updateFields`/`updateStatus`/`addTag`/`removeTag`); o botão
- * "Salvar alterações" só fecha o painel. "Excluir" pede confirmação antes de
- * apagar (desvio deliberado do protótipo, ver plano — ação destrutiva e
- * irreversível).
- */
+/** Cada campo salva sozinho via `TasksService`; "Salvar alterações" só fecha
+ * o painel. "Excluir" pede confirmação antes de apagar. */
 @Component({
   selector: 'app-task-edit-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
