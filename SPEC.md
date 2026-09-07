@@ -83,3 +83,27 @@
 - **Auto-save do painel de edição:** cada campo salva sozinho, sem botão "Salvar" bloqueante — texto/prazo usam debounce (~500ms, acumulando patches por tarefa) para não gerar 1 request por tecla; situação/tags/anexos salvam imediatamente.
 - **Diálogos:** `<dialog>` HTML nativo (sem Angular Material) para criar/renomear projeto, nova tag e confirmação de exclusão de tarefa e de projeto.
 - **Drag-and-drop do Kanban:** `@angular/cdk/drag-drop` (única peça do CDK usada no projeto). Cada coluna é um `cdkDropList` conectado via `cdkDropListGroup`, cada card um `cdkDrag`. Soltar um card em outra coluna chama `TasksService.updateStatus`, que reaproveita o mesmo `PATCH /api/tasks/{id}` do auto-save. UI otimista: a situação é gravada no signal local na hora (o card já "pula" de coluna porque `byStatus()` deriva de `tasks`) e, se o PATCH falhar, a situação anterior é restaurada. Reordenação dentro da mesma coluna não é persistida (o backend não guarda ordem), então o `cdkDropList` roda com `cdkDropListSortingDisabled`.
+
+## 4. Testes
+
+Cobertura enxuta e focada nos caminhos principais — não há E2E nem testes de componente/DOM. Rodar: `composer test` (backend) e `npm test` (frontend).
+
+### Backend — `backend/tests/` (PHPUnit)
+
+- **Feature tests** de integração HTTP contra os endpoints da API, com `RefreshDatabase` sobre SQLite em memória; uploads via `Storage::fake`.
+- Áreas cobertas:
+  - **Auth** (`Feature/Auth/AuthTest.php`): cadastro (token, e-mail duplicado, senha curta, campos obrigatórios), login (credenciais válidas/inválidas), logout (revoga o token, exige autenticação) e `GET /me`.
+  - **Projetos** (`Feature/Projects/ProjectControllerTest.php`): listar apenas os do usuário, criar, `name` obrigatório, renomear, isolamento entre usuários, cascata que apaga tarefas e remoção dos arquivos de anexo do disco.
+  - **Tarefas** (`Feature/Tasks/TaskControllerTest.php`): listagem com tags/anexos, defaults na criação, find-or-create de tags, `title` obrigatório, update parcial (só campos enviados), troca de situação, sincronização de tags, cascata de anexos e isolamento entre usuários.
+  - **Tags** (`Feature/Tags/TagControllerTest.php`): lista apenas as tags do usuário, ordenadas, exigindo autenticação.
+  - **Anexos** (`Feature/Attachments/AttachmentControllerTest.php`): upload, rejeição de mime inválido e de arquivo acima de 10MB, isolamento entre usuários e exclusão que remove o arquivo do disco além da linha.
+- Não há testes unitários próprios (apenas os `ExampleTest` de scaffolding).
+
+### Frontend — `frontend/src/**/*.spec.ts` (Vitest + jsdom)
+
+- **Testes unitários de serviços** com `HttpTestingController` para simular a API:
+  - `AuthService`: estado inicial não autenticado, persistência de token/usuário no login, limpeza da sessão no logout.
+  - `ProjectsService`: carrega e ativa o primeiro projeto, não sobrescreve o projeto ativo em reload, criar/renomear/remover, reativação do primeiro restante e limpeza do ativo ao remover o último.
+  - `TasksService`: carrega tarefas ao ativar/trocar de projeto, criar tarefa abre o painel, debounce que agrupa patches do mesmo campo num único `PATCH`, troca de situação imediata, rollback otimista quando o `PATCH` falha (drag-and-drop) e exclusão local com fechamento do painel.
+- **Testes de utilitários** (`shared/utils/format.spec.ts`): `formatBytes`, `initialsOf`, `splitIsoDateTime`/`combineDateTime` e `formatDueDate`.
+- Smoke test do componente raiz `App`.
