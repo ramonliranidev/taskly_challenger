@@ -29,7 +29,9 @@ docker compose up --build
 - Frontend (app): http://localhost:4200
 - Banco de dados: localhost:5432
 
-> Na primeira execução, o container do backend roda as migrations automaticamente.
+> Na primeira execução, o container do backend cria o `.env` a partir do
+> `.env.example`, gera a `APP_KEY`, roda as migrations e cria o symlink de
+> storage automaticamente.
 
 ### Desenvolvimento
 
@@ -38,7 +40,6 @@ recompilação rápida.
 
 ```bash
 # 1. Banco + API em container
-docker compose run --rm backend composer require laravel/sanctum:^4.2   # só na 1ª vez (sincroniza o lockfile)
 docker compose up -d db backend
 
 # 2. Frontend local

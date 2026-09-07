@@ -29,11 +29,18 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/.env
+      - path: ./backend/.env
+        required: false
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "composer install --no-interaction --prefer-dist --no-progress && php artisan migrate --force && php artisan storage:link && php artisan serve --host=0.0.0.0 --port=8000"
+    command: >
+      sh -c "test -f .env || cp .env.example .env &&
+      composer install --no-interaction --prefer-dist --no-progress &&
+      php artisan key:generate --force &&
+      php artisan migrate --force &&
+      php artisan storage:link --force &&
+      php artisan serve --host=0.0.0.0 --port=8000"
 
   frontend:
     build:

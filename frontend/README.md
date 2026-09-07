@@ -19,10 +19,8 @@ O `npm start` recompila e recarrega a cada alteração de arquivo.
 > ```bash
 > docker compose up -d db backend
 > ```
-> Na primeira vez, sincronize o Sanctum no lockfile:
-> ```bash
-> docker compose run --rm backend composer require laravel/sanctum:^4.2
-> ```
+> Na primeira execução, o container gera o `.env`, a `APP_KEY` e roda as
+> migrations automaticamente.
 
 ### `node_modules` pertencente ao root?
 
