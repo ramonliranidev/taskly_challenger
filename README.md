@@ -67,10 +67,3 @@ taskly/
 - [SPEC.md](./SPEC.md) — decisões técnicas, modelagem de dados e arquitetura
 - [PROMPTS.md](./PROMPTS.md) — prompts utilizados durante o desenvolvimento com IA
 
-## Deploy
-
-_(preencher com o link, se houver deploy)_
-
-## Vídeo de apresentação
-
-_(preencher com o link do vídeo)_

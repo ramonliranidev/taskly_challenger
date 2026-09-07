@@ -80,4 +80,3 @@ Seguido de um ciclo de perguntas/planejamento (modo *plan*: agentes de exploraç
 
 ---
 
-_(continuar adicionando uma entrada por prompt relevante ao longo do desenvolvimento)_
